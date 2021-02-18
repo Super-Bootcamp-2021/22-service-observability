@@ -1,1 +1,1 @@
-require('./service/main');
+require('./service/src/main');
