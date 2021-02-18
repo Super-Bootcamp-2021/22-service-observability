@@ -75,7 +75,7 @@ async function main(command: string): Promise<void> {
       break;
     case 'worker':
       await init();
-      workerServer.run(onStop);
+      workerServer.run(onStop, ctx);
       break;
     default:
       ctx?.logger?.info(`${command} tidak dikenali`);

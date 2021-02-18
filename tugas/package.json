@@ -8,7 +8,7 @@
     "svc:start": "node .",
     "svc:dev": "nodemon .",
     "lint": "eslint .",
-    "service:start": "node service/dist/main.js",
+    "service:start": "nodemon service/dist/main.js",
     "service:build": "tsc --project service/tsconfig.json",
     "service": "ts-node --project service/tsconfig.json .",
     "service:dev": "nodemon --config service/nodemon.json",
@@ -19,6 +19,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/busboy": "^0.2.3",
+    "@types/jaeger-client": "^3.15.4",
     "@types/mime-types": "^2.1.0",
     "@types/minio": "^7.0.7",
     "@types/redis": "^2.8.28",

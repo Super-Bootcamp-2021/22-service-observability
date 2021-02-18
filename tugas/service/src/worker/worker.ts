@@ -47,12 +47,3 @@ export async function remove(id: string | string[]) {
   bus.publish('worker.removed', worker);
   return worker;
 }
-
-// module.exports = {
-//   register,
-//   list,
-//   remove,
-//   info,
-//   ERROR_REGISTER_DATA_INVALID,
-//   ERROR_WORKER_NOT_FOUND,
-// };
