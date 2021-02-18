@@ -1,13 +1,12 @@
 import { getList } from './async-action';
 import { store$ } from './store';
-
 import './main.css';
-
 import Vue, { CreateElement, VNode } from 'vue';
 import { Header } from './components/Header';
 import { Form } from './components/Form';
 import { WorkerList } from './components/workerList';
-
+import { captureMessage } from '@sentry/vue';
+import '../lib/sentry';
 new Vue({
   el: '#app',
   components: {
@@ -73,6 +72,7 @@ new Vue({
     showError() {
       if (this.state?.error) {
         this.error = this.state.error.toString();
+        captureMessage('Error load worker');
       } else {
         this.error = '';
       }

@@ -2,12 +2,12 @@ import * as rc from 'rc';
 
 const defaultConfig = {
   database: {
-    type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'postgres',
-    password: '123456',
-    database: 'sanbercode2',
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "root",
+    "password": "",
+    "database": "sanbercode2"
   },
   objectStorage: {
     endPoint: '127.0.0.1',
