@@ -8,10 +8,14 @@ const {
   listSvc,
   getAttachmentSvc,
 } = require('./task.service');
+const { createTracer } = require('../lib/tracer');
+const { createNodeLogger } = require('../lib/logger');
 
+const logger = createNodeLogger('info', 'Task Service');
 let server;
 
 function run(callback) {
+  const tracer = createTracer('task service');
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -30,35 +34,35 @@ function run(callback) {
       switch (uri.pathname) {
         case '/add':
           if (req.method === 'POST') {
-            return addSvc(req, res);
+            return addSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/done':
           if (req.method === 'PUT') {
-            return doneSvc(req, res);
+            return doneSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/cancel':
           if (req.method === 'PUT') {
-            return cancelSvc(req, res);
+            return cancelSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/attachment\/\w+/.test(uri.pathname)) {
-            return getAttachmentSvc(req, res);
+            return getAttachmentSvc(req, res, tracer);
           }
           respond(404);
       }

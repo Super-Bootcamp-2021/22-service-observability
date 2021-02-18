@@ -23,4 +23,3 @@ exports.createTracer = (serviceName) => {
   };
   return initTracer(config, options);
 }
-

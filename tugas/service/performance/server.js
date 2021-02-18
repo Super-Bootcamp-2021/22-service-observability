@@ -7,11 +7,12 @@ const { config } = require('../config');
 const { createTracer } = require('../lib/tracer');
 const { createNodeLogger } = require('../lib/logger');
 
-const logger = createNodeLogger('info', 'Performance-Service');
+const logger = createNodeLogger('info', 'Performance Service');
 
 let server;
 
 function run(callback) {
+  const tracer = createTracer('performance service');
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -30,7 +31,7 @@ function run(callback) {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res);
+            return summarySvc(req, res, tracer);
           } else {
             logger.error('page not found');
             respond(404);

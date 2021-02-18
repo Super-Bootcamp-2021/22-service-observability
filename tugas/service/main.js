@@ -23,13 +23,13 @@ async function init() {
       password: config.database?.password,
       database: config.database?.database,
     });
-    console.log('database connected');
+    logger.info('database connected');
   } catch (err) {
-    console.error('database connection failed');
+    logger.error('database connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to object storage');
+    logger.info('connect to object storage');
     await storage.connect('task-manager', {
       endPoint: config.minio?.endPoint,
       port: config.minio?.port,
@@ -37,25 +37,25 @@ async function init() {
       accessKey: config.minio?.accessKey,
       secretKey: config.minio?.secretKey,
     });
-    console.log('object storage connected');
+    logger.info('object storage connected');
   } catch (err) {
     logger.error('object storage connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to message bus');
+    logger.info('connect to message bus');
     await bus.connect();
-    console.log('message bus connected');
+    logger.info('message bus connected');
   } catch (err) {
-    console.error('message bus connection failed');
+    logger.error('message bus connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to key value store');
+    logger.info('connect to key value store');
     await kv.connect();
-    console.log('key value store connected');
+    logger.info('key value store connected');
   } catch (err) {
-    console.error('key value store connection failed');
+    logger.error('key value store connection failed');
     process.exit(1);
   }
 }
@@ -80,8 +80,8 @@ async function main(command) {
       workerServer.run(onStop);
       break;
     default:
-      console.log(`${command} tidak dikenali`);
-      console.log('command yang valid: task, worker, performance');
+      logger.info(`${command} tidak dikenali`);
+      logger.info('command yang valid: task, worker, performance');
   }
 }
 
