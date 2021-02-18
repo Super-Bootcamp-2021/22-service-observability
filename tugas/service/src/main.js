@@ -11,38 +11,37 @@ const { config } = require('./config');
 const { createNodeLogger } = require('./lib/logger');
 const { createTracer } = require('./lib/tracer');
 
-async function init() {
-  const logger = createNodeLogger('info', 'presistent');
+async function init(ctx) {
   try {
-    logger.info('connect to database');
+    ctx.logger.info('connect to database');
     await orm.connect([WorkerSchema, TaskSchema], config.database);
-    logger.info('database connected');
+    ctx.logger.info('database connected');
   } catch (err) {
-    logger.error('database connection failed');
+    ctx.logger.error('database connection failed');
     process.exit(1);
   }
   try {
-    logger.info('connect to object storage');
+    ctx.logger.info('connect to object storage');
     await storage.connect('task-manager', config.storage);
-    logger.info('object storage connected');
+    ctx.logger.info('object storage connected');
   } catch (err) {
-    logger.error('object storage connection failed');
+    ctx.logger.error('object storage connection failed');
     process.exit(1);
   }
   try {
-    logger.info('connect to message bus');
+    ctx.logger.info('connect to message bus');
     await bus.connect(config.bus.host, config.bus);
-    logger.info('message bus connected');
+    ctx.logger.info('message bus connected');
   } catch (err) {
-    logger.error('message bus connection failed');
+    ctx.logger.error('message bus connection failed');
     process.exit(1);
   }
   try {
-    logger.info('connect to key value store');
+    ctx.logger.info('connect to key value store');
     await kv.connect(config.kv);
-    logger.info('key value store connected');
+    ctx.logger.info('key value store connected');
   } catch (err) {
-    logger.error('key value store connection failed');
+    ctx.logger.error('key value store connection failed');
     process.exit(1);
   }
 }
@@ -54,45 +53,44 @@ async function onStop() {
 
 async function main(command) {
   let logger;
-	let tracer;
-	let ctx;
-	switch (command) {
+  let tracer;
+  let ctx;
+  switch (command) {
     case 'performance':
-			logger = createNodeLogger('info', 'perf-svc');
-			tracer = createTracer('perf-svc');
-			ctx = {
-				logger,
-				tracer,
-			};
+      logger = createNodeLogger('info', 'perf-svc');
+      tracer = createTracer('perf-svc');
+      ctx = {
+        logger,
+        tracer,
+      };
       await init(ctx);
       performanceServer.run(ctx, onStop);
       break;
     case 'task':
       logger = createNodeLogger('info', 'task-svc');
-			tracer = createTracer('task-svc');
-			ctx = {
-				logger,
-				tracer,
-			};
+      tracer = createTracer('task-svc');
+      ctx = {
+        logger,
+        tracer,
+      };
 
       await init(ctx);
       tasksServer.run(ctx, onStop);
       break;
     case 'worker':
       logger = createNodeLogger('info', 'worker-svc');
-			tracer = createTracer('worker-svc');
-			ctx = {
-				logger,
-				tracer,
-			};
+      tracer = createTracer('worker-svc');
+      ctx = {
+        logger,
+        tracer,
+      };
       await init(ctx);
       workerServer.run(ctx, onStop);
       break;
     default:
-			logger = createNodeLogger('info', 'unknown');
+      logger = createNodeLogger('info', 'unknown');
       logger.info(`${command} tidak dikenali`);
       logger.info('command yang valid: task, worker, performance');
-    }
   }
 }
 
