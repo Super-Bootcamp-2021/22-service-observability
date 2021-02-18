@@ -11,7 +11,6 @@ const {
   ERROR_WORKER_NOT_FOUND,
 } = require('./worker');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
-const { trace } = require('console');
 
 function registerSvc(req, res, tracer) {
   const busboy = new Busboy({ headers: req.headers });
@@ -37,14 +36,11 @@ function registerSvc(req, res, tracer) {
         event: 'error pasing body',
         message: 'input data tidak valid atau tidak lengkap',
       });
-      res.statusCode = 413;
-      res.end();
       span.finish();
       parentSpan.finish();
-    } else {
+      res.statusCode = 413;
       res.end();
     }
-    return;
   }
 
   busboy.on('file', async (fieldname, file, filename, encoding, mimetype) => {
@@ -89,8 +85,6 @@ function registerSvc(req, res, tracer) {
           }
           parentSpan.finish();
           res.end();
-        } else {
-          abort();
         }
         span.finish();
         parentSpan.finish();
