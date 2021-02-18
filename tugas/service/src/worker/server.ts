@@ -8,6 +8,7 @@ import {
   ServerOptions,
   ServerResponse,
 } from 'http';
+import { connect } from '../lib/orm';
 import * as url from 'url';
 import { stdout } from 'process';
 import {
@@ -17,9 +18,33 @@ import {
   infoSvc,
   getPhotoSvc,
 } from './worker.service';
+import { WorkerSchema } from './worker.model';
 import { config } from '../config';
+import { Logger } from 'winston';
+import { createNodeLogger, LogLevel } from '../lib/logger';
+import { JaegerTracer } from 'jaeger-client';
+import { createTracer } from '../lib/tracer';
+import { AppContext } from '../lib/context';
 
+let ctx: AppContext
 let server: Server;
+
+async function init(): Promise<void> {
+  const logger: Logger = createNodeLogger(LogLevel.info, 'worker.service');
+  const tracer: JaegerTracer = createTracer('worker.service');
+  ctx = {
+    logger,
+    tracer,
+  };
+  try {
+    ctx.logger.info('connect to database');
+    await connect([WorkerSchema], config.database);
+    ctx.logger.info('database connected');
+  } catch (err) {
+    ctx.logger.error('database connection failed');
+    process.exit(1);
+  }
+}
 
 export function run(callback) {
   server = createServer((req, res) => {
@@ -40,35 +65,35 @@ export function run(callback) {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res);
+            return registerSvc(req, res,ctx);
           } else {
             respond(404, 'Method tidak tersedia');
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, ctx);
           } else {
             respond(404, 'Method tidak tersedia');
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res);
+            return infoSvc(req, res, ctx);
           } else {
             respond(404, 'Method tidak tersedia');
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res);
+            return removeSvc(req, res, ctx);
           } else {
             respond(404, 'Method tidak tersedia');
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname!)) {
-            return getPhotoSvc(req, res);
+            return getPhotoSvc(req, res, ctx);
           }
           respond(404, 'Method tidak tersedia');
       }
