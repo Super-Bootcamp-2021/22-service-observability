@@ -9,6 +9,7 @@ const { createNodeLogger } = require('../lib/logger');
 
 const logger = createNodeLogger('info', 'Performance Service');
 
+
 let server;
 
 function run(callback) {

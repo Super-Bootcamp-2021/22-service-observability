@@ -26,3 +26,4 @@ function createNodeLogger(level, serviceName) {
 module.exports = {
   createNodeLogger
 }
+
