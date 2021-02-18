@@ -2,7 +2,6 @@ require('./main.css');
 import Vue from 'vue';
 import { store$ } from './store';
 import { summary } from './async-action';
-import { captureMessage } from '@sentry/vue';
 import '../lib/sentry';
 
 new Vue({

@@ -1,6 +1,7 @@
 import { loadingAction, errorAction, summaryLoadedAction } from './store';
-import { captureMessage } from '@sentry/vue';
+const { captureMessage, captureException } = require ('@sentry/vue');
 import perfSvc from './performance.client';
+import '../lib/sentry';
 
 export const summary = async (dispatch) => {
   dispatch(loadingAction());
@@ -8,7 +9,7 @@ export const summary = async (dispatch) => {
     const summary = await perfSvc.summary();
     dispatch(summaryLoadedAction(summary));
   } catch (err) {
-    captureMessage('Failed get performance');
+    captureException(new Error('Failed get performance'));
     dispatch(errorAction('gagal memuat informasi kinerja'));
   }
 };

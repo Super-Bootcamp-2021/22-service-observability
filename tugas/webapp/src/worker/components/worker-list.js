@@ -4,7 +4,6 @@ import { store$ } from '../store';
 
 export const ListWorker = Vue.extend({
   props: ['workers'],
-
   render(element) {
     const workerList = this.$props.workers.map((worker) => {
       return element('div', [

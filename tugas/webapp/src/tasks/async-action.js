@@ -9,59 +9,60 @@ const {
 } = require('./store');
 const workerSvc = require('./worker.client');
 const taskSvc = require('./task.client');
-const { captureMessage } = require ('@sentry/vue');
+const { captureException } = require ('@sentry/vue');
+import '../lib/sentry';
 
-exports.add = (data) => async (dispatch) => {
+export const add = (data) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     const task = await taskSvc.add(data);
     dispatch(addedAction(task));
   } catch (err) {
-    captureMessage('Failed add task');
+    captureException(new Error('Failed add task'));
     dispatch(errorAction(`gagal menambahkan ${data.job}`));
   }
 };
 
-exports.done = (id) => async (dispatch) => {
+export const done = (id) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     await taskSvc.done(id);
     dispatch(doneAction(id));
   } catch (err) {
-    captureMessage('Failed done task');
+    captureException(new Error('Failed done task'));
     dispatch(errorAction('gagal menyelesaikan pekerjaan'));
   }
 };
 
-exports.cancel = (id) => async (dispatch) => {
+export const cancel = (id) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     await taskSvc.cancel(id);
     dispatch(canceledAction(id));
   } catch (err) {
-    captureMessage('Failed cancel task');
+    captureException(new Error('Failed cancel task'));
     dispatch(errorAction('gagal membatalkan pekerjaan'));
   }
 };
 
-exports.getList = async (dispatch) => {
+export const getList = async (dispatch) => {
   dispatch(loadingAction());
   try {
     const tasks = await taskSvc.list();
     dispatch(tasksLoadedAction(tasks));
   } catch (err) {
-    captureMessage('Failed list task');
+    captureException(new Error('Failed list task'));
     dispatch(errorAction('gagal memuat daftar pekerjaan'));
   }
 };
 
-exports.getWorkersList = async (dispatch) => {
+export const getWorkersList = async (dispatch) => {
   dispatch(loadingAction());
   try {
     const workers = await workerSvc.list();
     dispatch(workersLoadedAction(workers));
   } catch (err) {
-    captureMessage('Failed list worker');
+    captureException(new Error('Failed list worker'));
     dispatch(errorAction('gagal memuat daftar pekerja'));
   }
 };
