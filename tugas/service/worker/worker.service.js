@@ -11,6 +11,9 @@ const {
   ERROR_WORKER_NOT_FOUND,
 } = require('./worker');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
+const { createNodeLogger } = require('../lib/logger');
+
+const logger = createNodeLogger('info', 'Worker Service');
 
 function registerSvc(req, res, tracer) {
   const busboy = new Busboy({ headers: req.headers });
@@ -38,6 +41,7 @@ function registerSvc(req, res, tracer) {
       });
       span.finish();
       parentSpan.finish();
+      logger.error('Request entity too large');
       res.statusCode = 413;
       res.end();
     }
@@ -74,8 +78,10 @@ function registerSvc(req, res, tracer) {
             });
             span2.finish();
             if (err === ERROR_REGISTER_DATA_INVALID) {
+              logger.error('Unauthorized add worker');
               res.statusCode = 401;
             } else {
+              logger.error('internal server error');
               res.statusCode = 500;
             }
             span3.setTag('error', true);
@@ -132,6 +138,7 @@ async function listSvc(req, res, tracer) {
     span.log({ event: 'error get data', message: err });
     span.finish();
     parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
@@ -152,6 +159,7 @@ async function infoSvc(req, res, tracer) {
     span.finish();
     parentSpan.finish();
     res.statusCode = 401;
+    logger.error('Unauthorized info worker');
     res.write('parameter id tidak ditemukan');
     res.end();
     return;
@@ -174,6 +182,7 @@ async function infoSvc(req, res, tracer) {
       });
       span2.finish();
       parentSpan.finish();
+      logger.error('Not found info worker');
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -186,6 +195,7 @@ async function infoSvc(req, res, tracer) {
     });
     span2.finish();
     parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
@@ -205,6 +215,7 @@ async function removeSvc(req, res, tracer) {
     });
     span.finish();
     parentSpan.finish();
+    logger.error('Unauthorized remove worker');
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
     res.end();
@@ -231,6 +242,7 @@ async function removeSvc(req, res, tracer) {
       });
       span2.finish();
       parentSpan.finish();
+      logger.error('Not found remove worker');
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -243,6 +255,7 @@ async function removeSvc(req, res, tracer) {
     });
     span2.finish();
     parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
@@ -260,6 +273,7 @@ async function getPhotoSvc(req, res, tracer) {
     span.finish();
     parentSpan.finish();
     res.statusCode = 400;
+    logger.error('Bad request');
     res.write('request tidak sesuai');
     res.end();
   }
@@ -278,6 +292,7 @@ async function getPhotoSvc(req, res, tracer) {
       span2.log({ event: 'error get photo', message: err });
       span2.finish();
       parentSpan.finish();
+      logger.error('Not found get photo');
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -287,6 +302,7 @@ async function getPhotoSvc(req, res, tracer) {
     span2.log({ event: 'error get photo', message: err });
     span2.finish();
     parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.write('gagal membaca file');
     res.end();

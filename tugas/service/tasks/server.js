@@ -9,7 +9,9 @@ const {
   getAttachmentSvc,
 } = require('./task.service');
 const { createTracer } = require('../lib/tracer');
+const { createNodeLogger } = require('../lib/logger');
 
+const logger = createNodeLogger('info', 'Task Service');
 let server;
 
 function run(callback) {
@@ -34,6 +36,7 @@ function run(callback) {
           if (req.method === 'POST') {
             return addSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
@@ -41,6 +44,7 @@ function run(callback) {
           if (req.method === 'GET') {
             return listSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
@@ -48,6 +52,7 @@ function run(callback) {
           if (req.method === 'PUT') {
             return doneSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
@@ -55,6 +60,7 @@ function run(callback) {
           if (req.method === 'PUT') {
             return cancelSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
@@ -62,9 +68,11 @@ function run(callback) {
           if (/^\/attachment\/\w+/.test(uri.pathname)) {
             return getAttachmentSvc(req, res, tracer);
           }
+          logger.error('page not found');
           respond(404);
       }
     } catch (err) {
+      logger.error('unkown server error');
       respond(500, 'unkown server error');
     }
   });

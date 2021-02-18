@@ -8,11 +8,13 @@ const { config } = require('./config');
 const workerServer = require('./worker/server');
 const tasksServer = require('./tasks/server');
 const performanceServer = require('./performance/server');
-const { logger } = require('./lib/logger');
+const { createNodeLogger } = require('./lib/logger');
+
+const logger = createNodeLogger('info', 'Main Service');
 
 async function init() {
   try {
-    logger.info('connecting to database');
+    logger.info('connect to database');
     await orm.connect([WorkerSchema, TaskSchema], {
       type: config.database?.type,
       host: config.database?.host,
@@ -37,7 +39,7 @@ async function init() {
     });
     logger.info('object storage connected');
   } catch (err) {
-    console.error('object storage connection failed');
+    logger.error('object storage connection failed');
     process.exit(1);
   }
   try {
@@ -51,7 +53,6 @@ async function init() {
   try {
     logger.info('connect to key value store');
     await kv.connect();
-    throw Error('gagal')
     logger.info('key value store connected');
   } catch (err) {
     logger.error('key value store connection failed');

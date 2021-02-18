@@ -11,6 +11,9 @@ const {
   ERROR_TASK_NOT_FOUND,
 } = require('./task');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
+const { createNodeLogger } = require('../lib/logger');
+
+const logger = createNodeLogger('info', 'Task Service');
 
 function addSvc(req, res, tracer) {
   const busboy = new Busboy({ headers: req.headers });
@@ -36,6 +39,7 @@ function addSvc(req, res, tracer) {
       });
       span.finish();
       parentSpan.finish();
+      logger.error('internal server error');
       res.statusCode = 500;
       res.write('internal server error');
       res.end();
@@ -72,8 +76,10 @@ function addSvc(req, res, tracer) {
             });
             span2.finish();
             if (err === ERROR_TASK_DATA_INVALID) {
+              logger.error('Unauthorized add task');
               res.statusCode = 401;
             } else {
+              logger.error('internal server error');
               res.statusCode = 500;
             }
             span3.setTag('error', true);
@@ -135,6 +141,7 @@ async function listSvc(req, res, tracer) {
     span.log({ event: 'error get tasks', message: err });
     span.finish();
     parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
@@ -153,6 +160,7 @@ async function doneSvc(req, res, tracer) {
       message: 'parameter id tidak ditemukan',
     });
     res.statusCode = 401;
+    logger.error('Unauthorized done task');
     res.write('parameter id tidak ditemukan');
     res.end();
     return;
@@ -176,6 +184,7 @@ async function doneSvc(req, res, tracer) {
       });
       span2.finish();
       parentSpan.finish();
+      logger.error('Id worker not found');
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -187,6 +196,7 @@ async function doneSvc(req, res, tracer) {
     });
     span2.finish();
     parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
@@ -207,6 +217,7 @@ async function cancelSvc(req, res, tracer) {
     span.finish();
     parentSpan.finish();
     res.statusCode = 401;
+    logger.error('Unauthorized cancel task');
     res.write('parameter id tidak ditemukan');
     res.end();
     return;
@@ -232,6 +243,7 @@ async function cancelSvc(req, res, tracer) {
       });
       span2.finish();
       parentSpan.finish();
+      logger.error('Not found cancel task');
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -244,6 +256,7 @@ async function cancelSvc(req, res, tracer) {
     });
     span2.finish();
     parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
@@ -261,6 +274,7 @@ async function getAttachmentSvc(req, res, tracer) {
     span.finish();
     parentSpan.finish();
     res.statusCode = 400;
+    logger.error('Bad request');
     res.write('request tidak sesuai');
     res.end();
   }
@@ -281,6 +295,7 @@ async function getAttachmentSvc(req, res, tracer) {
       span2.log({ event: 'error get task', message: err });
       span2.finish();
       parentSpan.finish();
+      logger.error('Not found attachment');
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -291,6 +306,7 @@ async function getAttachmentSvc(req, res, tracer) {
     span2.finish();
     parentSpan.finish();
     res.statusCode = 500;
+    logger.error('internal server error');
     res.write('gagal membaca file');
     res.end();
     return;
