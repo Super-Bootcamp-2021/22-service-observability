@@ -8,38 +8,42 @@ const workerServer = require('./worker/server');
 const tasksServer = require('./tasks/server');
 const performanceServer = require('./performance/server');
 const { config } = require('./config');
+const { createLogConsole, createLogFile } = require('./lib/logger');
+
+const logConsole = createLogConsole('info', 'server');
+const logFile = createLogFile('error', 'server');
 
 async function init() {
   try {
-    console.log('connect to database');
+    logConsole.info('connect to database', 'postgres');
     await orm.connect([WorkerSchema, TaskSchema], config.database);
-    console.log('database connected');
+    logConsole.info('database connected', 'postgres');
   } catch (err) {
-    console.error('database connection failed');
+    logFile.error('database connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to object storage');
+    logConsole.info('connect to object storage');
     await storage.connect('task-manager', config.minio);
-    console.log('object storage connected');
+    logConsole.info('object storage connected');
   } catch (err) {
-    console.error('object storage connection failed');
+    logFile.error('object storage connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to message bus');
+    logConsole.info('connect to message bus');
     await bus.connect();
-    console.log('message bus connected');
+    logConsole.info('message bus connected');
   } catch (err) {
-    console.error('message bus connection failed');
+    logFile.error('message bus connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to key value store');
+    logConsole.info('connect to key value store');
     await kv.connect();
-    console.log('key value store connected');
+    logConsole.info('key value store connected');
   } catch (err) {
-    console.error('key value store connection failed');
+    logFile.error('key value store connection failed');
     process.exit(1);
   }
 }
@@ -64,8 +68,8 @@ async function main(command) {
       workerServer.run(onStop);
       break;
     default:
-      console.log(`${command} tidak dikenali`);
-      console.log('command yang valid: task, worker, performance');
+      logConsole.info(`${command} tidak dikenali`);
+      logConsole.info('command yang valid: task, worker, performance');
   }
 }
 
