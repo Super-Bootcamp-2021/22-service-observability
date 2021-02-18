@@ -1,8 +1,10 @@
-import Vue, { CreateElement, VNode} from 'vue';
+import Vue, { CreateElement, VNode } from 'vue';
 import { add, getList, getWorkersList } from './async-action';
 import { TaskList } from './component/task-list';
 import { clearErrorAction, errorAction, store$ } from './store';
 import './main.css';
+import { captureMessage } from '@sentry/vue';
+import '../lib/sentry';
 
 new Vue({
   el: '#app',
@@ -64,10 +66,10 @@ new Vue({
         }
       }, 'memuat...'),
       createElement('form', {
-          on: {
-            submit: this.addNewTask,
-          }
-        }, [
+        on: {
+          submit: this.addNewTask,
+        }
+      }, [
         createElement('label', 'Tugas'),
         createElement('br'),
         createElement('textarea', {
@@ -97,7 +99,7 @@ new Vue({
         createElement('br'),
         createElement('input', {
           domProps: {
-            type: 'file', 
+            type: 'file',
           },
           on: {
             input: (event) => {
@@ -151,6 +153,7 @@ new Vue({
     showError() {
       if (this.state?.error) {
         this.error = this.state.error.toString();
+        captureMessage('Error load tasks');
       } else {
         this.error = '';
       }
@@ -165,10 +168,11 @@ new Vue({
         !this.task?.attachment[0]
       ) {
         store$.dispatch<any>(errorAction('form isian tidak lengkap!'));
+        captureMessage('Failed add task');
         return;
       }
 
-      if (this.task?.attachment[0]) {  
+      if (this.task?.attachment[0]) {
         store$.dispatch<any>(
           add({
             job: this.task?.job,

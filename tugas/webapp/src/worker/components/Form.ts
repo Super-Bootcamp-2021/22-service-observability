@@ -1,6 +1,8 @@
 import Vue, { CreateElement, VNode } from 'vue';
 import { clearErrorAction, errorAction, store$ } from '../store';
 import { register } from '../async-action';
+import { captureMessage } from '@sentry/vue';
+import '../../lib/sentry';
 
 export const Form = Vue.extend({
   data() {
@@ -139,6 +141,7 @@ export const Form = Vue.extend({
         !this.addWorker.address
       ) {
         store$.dispatch(errorAction('form isian tidak lengkap!'));
+        captureMessage('Failed add task');
         return;
       }
       console.log(this.addWorker);

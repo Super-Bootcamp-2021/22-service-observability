@@ -3,6 +3,8 @@ import { store$ } from './store';
 import './main.css';
 import Vue, { CreateElement, VNode } from 'vue';
 import { PerformanceItem } from './component/perform-item';
+import { captureMessage } from '@sentry/vue';
+import '../lib/sentry';
 
 new Vue({
     el: '#app-3',
@@ -111,6 +113,7 @@ const app = new Vue({
             }
             if (this.perform.error != null) {
                 this.error(this.perform.error)
+                captureMessage('Error load performance');
             }
         });
 
@@ -125,6 +128,7 @@ const app = new Vue({
         }
         if (this.perform.error != null) {
             this.error(this.perform.error)
+            captureMessage('Error load performance');
         }
     },
 })

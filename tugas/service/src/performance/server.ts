@@ -4,10 +4,23 @@ import { stdout } from 'process';
 import { summarySvc } from './performance.service';
 import * as agg from './performance.agg';
 import { config } from '../config';
+import { AppContext } from '../lib/context';
+import { Logger } from 'winston';
+import { createNodeLogger, LogLevel } from '../lib/logger';
+import { JaegerTracer } from 'jaeger-client';
+import { createTracer } from '../lib/tracer';
 
+let ctx: AppContext;
 let server: any;
 
 export function run(callback: any) {
+  const logger: Logger = createNodeLogger(LogLevel.info, 'performance-service');
+  const tracer: JaegerTracer = createTracer('performance-service');
+  ctx = {
+    logger,
+    tracer,
+  };
+
   server = createServer((req: IncomingMessage, res: ServerResponse) => {
     // cors
     const aborted = cors(req, res);
@@ -26,16 +39,20 @@ export function run(callback: any) {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res);
+            ctx?.logger?.info('request summary');
+            return summarySvc(req, res, ctx);
           } else {
             respond(404, "not found");
+            ctx?.logger?.error('(404) method request to performance host not found');
           }
           break;
         default:
           respond(404, "not found");
+          ctx?.logger?.error('(404) pathname request to performance host not found');
       }
     } catch (err) {
       respond(500, 'unkown server error');
+      ctx?.logger?.error('(500) unkown server error when request to performance host');
     }
   });
 
