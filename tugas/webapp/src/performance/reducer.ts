@@ -21,7 +21,7 @@ interface ActionObjectError extends ActionObject {
 }
 
 interface ActionObjectLoadTask extends ActionObject{
-  payload: performanceResult
+  payload: performanceResult;
 }
 
 // setup state

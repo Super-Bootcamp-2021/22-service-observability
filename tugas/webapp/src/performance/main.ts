@@ -1,8 +1,25 @@
 import Vue, { CreateElement, VNode } from 'vue';
-import { summary, loadingMessage, errorMessage } from './components/performance-components';
+import {
+  summary,
+  loadingMessage,
+  errorMessage,
+} from './components/performance-components';
 import { store$ } from './store';
 import { summary as summaryAction } from './async-action';
 import './main.css';
+import * as Sentry from '@sentry/vue';
+import { Integrations } from '@sentry/tracing';
+
+Sentry.init({
+  Vue,
+  dsn: process.env.SENTRY_DSN|| '',
+  integrations: [new Integrations.BrowserTracing()],
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
+
 const buttonRefresh = Vue.extend({
   render(createElement: CreateElement): VNode {
     return createElement('button', {
