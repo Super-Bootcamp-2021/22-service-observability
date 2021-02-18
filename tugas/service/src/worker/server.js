@@ -9,15 +9,13 @@ const {
   getPhotoSvc,
 } = require('./worker.service');
 const { config } = require('../config');
-const { createNodeLogger, LogLevel } = require('../lib/logger');
-const { JaegerTracer }= require( 'jaeger-client');
 
 let ctx;
 
 let server;
 
 function run(ctx, callback) {
-    server = createServer((req, res) => {
+  server = createServer((req, res, ctx) => {
     // cors
     const aborted = cors(req, res);
     if (aborted) {
@@ -35,35 +33,35 @@ function run(ctx, callback) {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res);
+            return registerSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res);
+            return infoSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res);
+            return removeSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
-            return getPhotoSvc(req, res);
+            return getPhotoSvc(req, res, ctx);
           }
           respond(404);
       }
@@ -86,7 +84,7 @@ function run(ctx, callback) {
   });
 }
 
-function cors(req, res) {
+function cors(req, res, ctx) {
   // handle preflight request
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
