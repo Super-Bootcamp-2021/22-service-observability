@@ -2,6 +2,8 @@ const Vue = require('vue').default;
 const { store$ } = require('../store');
 const { summary } = require('../async-action');
 
+require('../../lib/sentry');
+
 const errLoadBtn = Vue.extend({
   props: ['err', 'load'],
   render(createElement) {

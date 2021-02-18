@@ -2,6 +2,8 @@ const Vue = require('vue').default;
 const { cancel, done } = require('../async-action');
 const { store$ } = require('../store');
 
+require('../../lib/sentry');
+
 const TaskList = Vue.extend({
   props: ['tasks'],
   render(createElement) {

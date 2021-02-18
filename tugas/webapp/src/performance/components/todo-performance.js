@@ -1,5 +1,7 @@
 const Vue = require('vue').default;
 
+require('../../lib/sentry');
+
 const listItem = Vue.extend({
   props: ['summary'],
   render(createElement) {

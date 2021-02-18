@@ -6,6 +6,8 @@ const { menuLayout } = require('./components/menu');
 const { errLoadBtn } = require('./components/errLoad');
 const { listItem } = require('./components/todo-performance');
 
+require('../lib/sentry');
+
 new Vue({
   el: '#performance-VDOM',
   components: {

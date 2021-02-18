@@ -2,6 +2,8 @@ const Vue = require('vue').default;
 const { add } = require('../async-action');
 const { store$, errorAction, clearErrorAction } = require('../store');
 
+require('../../lib/sentry');
+
 const TaskForm = Vue.extend({
   props: ['tasks', 'workers'],
   render(createElement) {

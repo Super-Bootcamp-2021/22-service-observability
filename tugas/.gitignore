@@ -4,3 +4,4 @@ node_modules
 file-storage
 *.log
 .tmrc
+.env

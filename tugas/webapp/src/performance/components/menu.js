@@ -1,5 +1,7 @@
 const Vue = require('vue').default;
 
+require('../../lib/sentry');
+
 const menuLayout = Vue.extend({
   render(createElement) {
     return createElement('ul', [

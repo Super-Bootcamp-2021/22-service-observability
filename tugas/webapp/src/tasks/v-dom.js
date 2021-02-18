@@ -3,9 +3,11 @@ const Vue = require('vue').default;
 const { getList, getWorkersList } = require('./async-action');
 require('./main.css');
 const { store$ } = require('./store');
-//const { TaskList } = require('./component/task-list');
+
 const { TaskForm } = require('./component/task-form');
 const { TaskList } = require('./component/task-list');
+
+require('../lib/sentry');
 
 new Vue({
   el: '#task-app',

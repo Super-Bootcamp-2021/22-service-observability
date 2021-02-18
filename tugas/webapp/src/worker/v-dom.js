@@ -9,6 +9,8 @@ const { WorkerForm } = require('./components/worker-form');
 const { getList } = require('./async-action');
 const { store$ } = require('./store');
 
+require('../lib/sentry');
+
 new Vue({
   el: '#app-worker',
   components: {
@@ -58,15 +60,6 @@ new Vue({
       }
     });
         
-    store$.dispatch(getList);
-    console.log(typeof state.loading);
-  
-    
-    
-    // if (state.error) {
-    //   errorTxt.textContent = state.error.toString();
-    // } else {
-    //   errorTxt.textContent = '';
-    // }
+    store$.dispatch(getList);      
   },
 });

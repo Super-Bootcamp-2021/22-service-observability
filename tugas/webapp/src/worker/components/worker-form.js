@@ -2,6 +2,8 @@ const Vue = require('vue').default;
 const { register } = require('../async-action');
 const { store$, errorAction, clearErrorAction } = require('../store');
 
+require('../../lib/sentry');
+
 const WorkerForm = Vue.extend({
   props: ['workers'],
   render(createElement) {

@@ -3,6 +3,8 @@ const Vue = require('vue').default;
 const { store$ } = require('../store');
 const { remove } = require('../async-action');
 
+require('../../lib/sentry');
+
 const WorkerList = Vue.extend({
   props: ['workers'],
   render(createElement) {
