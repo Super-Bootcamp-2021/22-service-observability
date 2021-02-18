@@ -5,17 +5,21 @@ import { stdout } from 'process';
 import { listSvc, addSvc, removeSvc, doneSvc, undoneSvc } from './todo.service';
 import { TodoSchema } from './todo.model';
 import { config } from './config';
+import { Logger } from 'winston';
+import { createNodeLogger, LogLevel } from './lib/logger';
+
+const logger: Logger = createNodeLogger(LogLevel.info);
 
 /**
  * intiate database connection
  */
 async function init(): Promise<void> {
   try {
-    console.log('connect to database');
+    logger.info('connect to database');
     await connect([TodoSchema], config.database);
-    console.log('database connected');
+    logger.info('database connected');
   } catch (err) {
-    console.error('database connection failed');
+    logger.error('database connection failed');
     process.exit(1);
   }
 }
