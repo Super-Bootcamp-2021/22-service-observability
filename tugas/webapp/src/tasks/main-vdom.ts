@@ -34,7 +34,9 @@ new Vue({
         },
         'memuat...'
       ),
-      create('task-input', { props: { workers: this.state.workers } }),
+      create('task-input', {
+        props: { workers: this.state.workers, input: this.input },
+      }),
       create('hr'),
       create('div', [
         create('h4', 'daftar kerjaan'),
@@ -49,11 +51,21 @@ new Vue({
       workers: [],
       tasks: [],
     },
+    input: {
+      job: '',
+      assignee_id: 0,
+      attachment: null,
+    },
   },
   mounted() {
     this.state = store$.getState();
     store$.subscribe(() => {
       this.state = store$.getState();
+      this.input = {
+        job: '',
+        assignee_id: 0,
+        attachment: null,
+      };
     });
     store$.dispatch<any>(getList);
     store$.dispatch<any>(getWorkersList);
