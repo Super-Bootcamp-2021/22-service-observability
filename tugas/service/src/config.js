@@ -2,10 +2,10 @@ const rc = require('rc');
 
 const defaultConfig = {
   database: {
-    type: 'postgres',
+    type: 'mysql',
     host: 'localhost',
-    port: 5432,
-    username: 'postgres',
+    port:3306,
+    username: 'root',
     password: '',
     database: 'database',
   },
@@ -13,8 +13,8 @@ const defaultConfig = {
     endPoint: '127.0.0.1',
     port: 9000,
     useSSL: false,
-    accessKey: 'local-minio',
-    secretKey: 'local-test-secret',
+    accessKey: 'minioadmin',
+    secretKey: 'minioadmin',
   },
 	bus: {
     host: 'localhost',

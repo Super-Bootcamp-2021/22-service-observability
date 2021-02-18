@@ -9,11 +9,15 @@ const {
   getPhotoSvc,
 } = require('./worker.service');
 const { config } = require('../config');
+const { createNodeLogger, LogLevel } = require('../lib/logger');
+const { JaegerTracer }= require( 'jaeger-client');
+
+let ctx;
 
 let server;
 
 function run(ctx, callback) {
-  server = createServer((req, res) => {
+    server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
     if (aborted) {
