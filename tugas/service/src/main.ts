@@ -16,9 +16,9 @@ import { createTracer } from './lib/tracer';
 import { AppContext } from './lib/context';
 let ctx: AppContext;
 
-async function init(arr: string) {
-  const logger: Logger = createNodeLogger(LogLevel.info, arr);
-  const tracer: JaegerTracer = createTracer(arr);
+async function init() {
+  const logger: Logger = createNodeLogger(LogLevel.info, 'main-init');
+  const tracer: JaegerTracer = createTracer('main-init');
   ctx = {
     logger,
     tracer,
@@ -98,19 +98,19 @@ async function main(command) {
   switch (command) {
     case 'performance':
       ctx.logger.info('performance server start');
-      await init('performance');
+      await init();
       performanceServer.run(onStop);
       ctx.logger.info('performance server running');
       break;
     case 'task':
       ctx.logger.info('task server start');
-      await init('task');
+      await init();
       tasksServer.run(onStop);
       ctx.logger.info('task server running');
       break;
     case 'worker':
       ctx.logger.info('worker server start');
-      await init('worker');
+      await init();
       workerServer.run(onStop);
       ctx.logger.info('worker server running');
       break;
