@@ -2,9 +2,9 @@ const nats = require('nats');
 
 let client;
 
-function connect(url, config) {
+function connect(config) {
   return new Promise((resolve, reject) => {
-    client = nats.connect(url, config);
+    client = nats.connect(config);
     client.on('connect', () => {
       resolve();
     });

@@ -4,6 +4,11 @@
   "description": "sample service mesh implementation",
   "main": "index.js",
   "scripts": {
+    "deploy": "vercel --prod",
+    "docs:svc": "typedoc --tsconfig service/tsconfig.json --options service/docs.json",
+    "docs:web": "typedoc --tsconfig tsconfig.json --options docs.json",
+    "service:build": "tsc --project service/tsconfig.json",
+    "service:start": "node service/dist/server.js",
     "test": "nyc mocha",
     "svc:start": "node .",
     "svc:dev": "nodemon .",
@@ -14,18 +19,29 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "css-loader": "^5.0.2",
+    "dotenv-webpack": "^6.0.0",
     "eslint": "^7.19.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "^2.2.1",
-    "css-loader": "^5.0.1",
     "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.17",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.5",
+    "vercel": "^21.2.3",
     "webpack": "^5.17.0",
     "webpack-cli": "^4.4.0",
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.5.0",
+    "@sentry/tracing": "^6.1.0",
+    "@sentry/vue": "^6.1.0",
+    "@typescript-eslint/eslint-plugin": "^4.15.1",
+    "@typescript-eslint/parser": "^4.15.1",
     "busboy": "^0.3.1",
+    "jaeger-client": "^3.18.1",
     "mariadb": "^2.5.2",
     "mime-types": "^2.1.28",
     "minio": "^7.0.18",
@@ -34,10 +50,12 @@
     "nodemon": "^2.0.7",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
+    "rc": "^1.2.8",
     "redis": "^3.0.2",
-    "typeorm": "^0.2.30",
-    "@reduxjs/toolkit": "^1.5.0",
+    "redux-thunk": "^2.3.0",
     "rxjs": "^6.6.3",
-    "redux-thunk": "^2.3.0"
+    "typeorm": "^0.2.30",
+    "vue": "^2.6.12",
+    "winston": "^3.3.3"
   }
 }

@@ -1,28 +1,61 @@
-const { SERVICE_BASEURL } = require('./config');
+import { SERVICE_BASEURL } from './config';
+
+export interface Worker {
+  [propName: string]: any;
+}
+export interface Task {
+  [propName: string]: any;
+}
+export interface State {
+  loading: boolean;
+  error: string | null;
+  workers: Worker[];
+  tasks: Task[];
+}
+
+interface ActionObject {
+  type: string;
+}
+interface ActionObjectAdd extends ActionObject {
+  payload: Task;
+}
+interface ActionObjectError extends ActionObject {
+  payload: string;
+}
+interface ActionObjectDone extends ActionObject {
+  payload: number;
+}
+type ActionObjectCancel = ActionObjectDone;
+interface ActionObjectTasks extends ActionObject {
+  payload: Task[];
+}
+interface ActionObjectWorkers extends ActionObject {
+  payload: Worker[];
+}
 
 // setup state
-const initialState = {
+export const initialState: State = {
   loading: false,
   error: null,
   workers: [],
   tasks: [],
 };
 
-function loading(state) {
+export function loading(state: State) {
   state.loading = true;
   state.error = null;
 }
 
-function error(state, action) {
+export function error(state: State, action: ActionObjectError) {
   state.loading = false;
   state.error = action.payload;
 }
 
-function clearError(state) {
+export function clearError(state: State) {
   state.error = null;
 }
 
-function added(state, action) {
+export function added(state: State, action: ActionObjectAdd): State {
   const task = action.payload;
   state.tasks.push({
     id: task.id,
@@ -36,7 +69,7 @@ function added(state, action) {
   return state;
 }
 
-function done(state, action) {
+export function done(state: State, action: ActionObjectDone): State {
   const idx = state.tasks.findIndex((t) => t.id === action.payload);
   state.tasks[idx].done = true;
   state.loading = false;
@@ -44,7 +77,7 @@ function done(state, action) {
   return state;
 }
 
-function canceled(state, action) {
+export function canceled(state: State, action: ActionObjectCancel): State {
   const idx = state.tasks.findIndex((t) => t.id === action.payload);
   state.tasks.splice(idx, 1);
   state.loading = false;
@@ -52,7 +85,7 @@ function canceled(state, action) {
   return state;
 }
 
-function tasksLoaded(state, action) {
+export function tasksLoaded(state: State, action: ActionObjectTasks): State {
   state.tasks = action.payload
     .filter((t) => !t.cancelled)
     .map((task) => ({
@@ -67,7 +100,10 @@ function tasksLoaded(state, action) {
   return state;
 }
 
-function workersLoaded(state, action) {
+export function workersLoaded(
+  state: State,
+  action: ActionObjectWorkers
+): State {
   state.workers = action.payload.map((worker) => ({
     id: worker.id,
     name: worker.name,
@@ -76,15 +112,3 @@ function workersLoaded(state, action) {
   state.error = null;
   return state;
 }
-
-module.exports = {
-  initialState,
-  added,
-  done,
-  canceled,
-  tasksLoaded,
-  workersLoaded,
-  error,
-  loading,
-  clearError,
-};

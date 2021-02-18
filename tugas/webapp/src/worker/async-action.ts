@@ -1,13 +1,16 @@
-const {
+import {
   loadingAction,
   errorAction,
   registeredAction,
   removedAction,
   workersLoadedAction,
-} = require('./store');
-const workerSvc = require('./worker.client');
+} from './store';
 
-exports.register = (data) => async (dispatch) => {
+import { WorkerData } from './reducer';
+
+import * as workerSvc from './worker.client';
+
+export const register = (data: WorkerData) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     const worker = await workerSvc.register(data);
@@ -17,7 +20,7 @@ exports.register = (data) => async (dispatch) => {
   }
 };
 
-exports.remove = (id) => async (dispatch) => {
+export const remove = (id) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     await workerSvc.remove(id);
@@ -27,7 +30,7 @@ exports.remove = (id) => async (dispatch) => {
   }
 };
 
-exports.getList = async (dispatch) => {
+export const getList = async (dispatch) => {
   dispatch(loadingAction());
   try {
     const workers = await workerSvc.list();
