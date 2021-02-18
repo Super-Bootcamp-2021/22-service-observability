@@ -6,6 +6,8 @@ import Vue, { CreateElement, VNode } from 'vue';
 import { TaskList } from './components/task-list';
 import { FormTask } from './components/form-task';
 import { navigation } from './components/navigation';
+import {captureMessage} from '@sentry/vue';
+import '../sentry';
 
 new Vue({
   el: '#task-app',
@@ -37,7 +39,8 @@ new Vue({
   },
   // created() {
   mounted() {
-    this.state = store$.getState();
+    const tes=this.state = store$.getState();
+    captureMessage('coba lihat');
     store$.subscribe(() => {
       this.state = store$.getState();
     });

@@ -10,6 +10,7 @@ import {
 import * as workerSvc from './worker.client';
 import * as taskSvc from './task.client';
 import { Task } from './reducer';
+import {captureMessage} from '@sentry/vue'
 
 export const add = (data: Task) => async (dispatch) => {
   dispatch(loadingAction());
@@ -17,6 +18,7 @@ export const add = (data: Task) => async (dispatch) => {
     const task = await taskSvc.add(data);
     dispatch(addedAction(task));
   } catch (err) {
+    captureMessage(err)
     dispatch(errorAction(`gagal menambahkan ${data.job}`));
   }
 };
