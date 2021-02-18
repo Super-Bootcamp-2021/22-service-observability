@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./webapp/www",
+    "sourceMap": true,
+    "allowJs": true,
+    "target": "ES6",
+    //"strictNullChecks": false,
+    "moduleResolution": "Node",
+    
+  },
+  "include": ["./webapp/src/**/*"]
+}
