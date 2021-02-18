@@ -1,0 +1,7 @@
+2021-02-18T17:25:50.724Z info: connecting to database
+2021-02-18T17:25:53.886Z info: database connected
+2021-02-18T17:25:53.887Z info: connect to object storage
+2021-02-18T17:25:53.966Z info: object storage connected
+2021-02-18T17:25:53.967Z info: connect to message bus
+2021-02-18T17:25:53.973Z info: message bus connected
+2021-02-18T17:25:53.977Z info: connect to key value store

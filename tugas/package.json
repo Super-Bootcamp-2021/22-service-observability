@@ -41,13 +41,17 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.5.0",
+    "@sentry/tracing": "^6.1.0",
+    "@sentry/vue": "^6.1.0",
     "busboy": "^0.3.1",
+    "jaeger-client": "^3.18.1",
     "mariadb": "^2.5.2",
     "mime-types": "^2.1.28",
     "minio": "^7.0.18",
     "mysql": "^2.18.1",
     "nats": "^1.4.12",
     "nodemon": "^2.0.7",
+    "opentracing": "^0.14.5",
     "path": "^0.12.7",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
@@ -59,10 +63,6 @@
     "typedoc": "^0.20.25",
     "typeorm": "^0.2.30",
     "vue": "^2.6.12",
-    "@sentry/tracing": "^6.1.0",
-    "@sentry/vue": "^6.1.0",
-    "jaeger-client": "^3.18.1",
-    "opentracing": "^0.14.5",
     "winston": "^3.3.3"
   }
 }
