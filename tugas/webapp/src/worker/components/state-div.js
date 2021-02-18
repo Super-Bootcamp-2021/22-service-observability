@@ -1,6 +1,6 @@
 const Vue = require('vue').default;
 const { store$ } = require('../store');
-const { summary } = require('../async-action');
+const { getList } = require('../async-action');
 
 const StateComp = Vue.extend({
   props: ['errMsg', 'load'],
@@ -38,7 +38,7 @@ const StateComp = Vue.extend({
         {
           on: {
             click: () => {
-              store$.dispatch(summary);
+              store$.dispatch(getList);
             },
           },
         },
