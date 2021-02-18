@@ -1,0 +1,22 @@
+{
+  "database": {
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "postgres",
+    "password": "passpostgres1997",
+    "database": "sanbercode2"
+  },
+  "server": {
+    "workerPort": 7001,
+    "taskPort": 7002,
+    "performancePort": 7003
+  },
+  "minio": {
+    "endPoint": "127.0.0.1",
+    "port": 1111,
+    "useSSL": false,
+    "accessKey": "minio",
+    "secretKey": "12345678"
+  }
+}
