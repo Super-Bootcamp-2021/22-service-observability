@@ -53,43 +53,43 @@ async function onStop() {
 }
 
 async function main(command) {
-  switch (command) {
-    case 'performance': {
-      const logger = createNodeLogger('info', 'perf-svc');
-      const tracer = createTracer('perf-svc');
-      const ctx = {
-        logger,
-        tracer,
-      };
-
+  let logger;
+	let tracer;
+	let ctx;
+	switch (command) {
+    case 'performance':
+			logger = createNodeLogger('info', 'perf-svc');
+			tracer = createTracer('perf-svc');
+			ctx = {
+				logger,
+				tracer,
+			};
       await init(ctx);
       performanceServer.run(ctx, onStop);
       break;
-    }
-    case 'task': {
-      const logger = createNodeLogger('info', 'task-svc');
-      const tracer = createTracer('task-svc');
-      const ctx = {
-        logger,
-        tracer,
-      };
+    case 'task':
+      logger = createNodeLogger('info', 'task-svc');
+			tracer = createTracer('task-svc');
+			ctx = {
+				logger,
+				tracer,
+			};
+
       await init(ctx);
       tasksServer.run(ctx, onStop);
       break;
-    }
-    case 'worker': {
-      const logger = createNodeLogger('info', 'worker-svc');
-      const tracer = createTracer('worker-svc');
-      const ctx = {
-        logger,
-        tracer,
-      };
+    case 'worker':
+      logger = createNodeLogger('info', 'worker-svc');
+			tracer = createTracer('worker-svc');
+			ctx = {
+				logger,
+				tracer,
+			};
       await init(ctx);
       workerServer.run(ctx, onStop);
       break;
-    }
-    default: {
-      const logger = createNodeLogger('info', 'unknown');
+    default:
+			logger = createNodeLogger('info', 'unknown');
       logger.info(`${command} tidak dikenali`);
       logger.info('command yang valid: task, worker, performance');
     }
