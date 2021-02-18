@@ -8,38 +8,42 @@ import * as workerServer from'./worker/server';
 import * as tasksServer from'./tasks/server';
 import * as performanceServer from'./performance/server';
 import { config } from'./config';
+import { Logger } from 'winston';
+import { createNodeLogger, LogLevel } from './lib/logger';
+
+const logger: Logger = createNodeLogger(LogLevel.info);
 
 async function init() {
   try {
-    console.log('connect to database');
+    logger.info('connect to database');
     await orm.connect([WorkerSchema, TaskSchema], config.database);
-    console.log('database connected');
+    logger.info('database connected');
   } catch (err) {
-    console.error('database connection failed');
+    logger.error('database connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to object storage');
+    logger.info('connect to object storage');
     await storage.connect('task-manager', config.minio);
-    console.log('object storage connected');
+    logger.info('object storage connected');
   } catch (err) {
-    console.error('object storage connection failed');
+    logger.error('object storage connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to message bus');
+    logger.info('connect to message bus');
     await bus.connect(config.bus.host, config.bus);
-    console.log('message bus connected');
+    logger.info('message bus connected');
   } catch (err) {
-    console.error('message bus connection failed');
+    logger.error('message bus connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to key value store');
+    logger.info('connect to key value store');
     await kv.connect(config.kv);
-    console.log('key value store connected');
+    logger.info('key value store connected');
   } catch (err) {
-    console.error('key value store connection failed');
+    logger.error('key value store connection failed');
     process.exit(1);
   }
 }
@@ -64,8 +68,8 @@ async function main(command :string) {
       workerServer.run(onStop);
       break;
     default:
-      console.log(`${command} tidak dikenali`);
-      console.log('command yang valid: task, worker, performance');
+      logger.info(`${command} tidak dikenali`);
+      logger.info('command yang valid: task, worker, performance');
   }
 }
 
