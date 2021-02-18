@@ -10,7 +10,7 @@ const defaultConfig = {
     database: 'database',
   },
   minio: {
-    endPoint: '127.0.0.1', //diganti
+    endPoint: '127.0.0.1', 
     port: 9000,
     accessKey: 'minioadmin',
     secretKey: 'minioadmin',

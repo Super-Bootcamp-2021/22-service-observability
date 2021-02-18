@@ -9,6 +9,7 @@
     "lint": "eslint . --ext .ts",
     "deploy": "vercel --prod",
     "service": "ts-node --project service/tsconfig.json service/src/main.ts",
+    "service:task": "ts-node --project service/tsconfig.json service/src/main.ts task",
     "service:start": "node service/dist/main.js",
     "service:dev": "nodemon --config service/nodemon.json",
     "service:build": "tsc --project service/tsconfig.json",
