@@ -4,10 +4,12 @@ const { stdout } = require('process');
 const { summarySvc } = require('./performance.service');
 const agg = require('./performance.agg');
 const { config } = require('../config');
+const { createTracer } = require('../lib/tracer');
 
 let server;
 
 function run(callback) {
+  const tracer = createTracer('performance service');
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -26,7 +28,7 @@ function run(callback) {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res);
+            return summarySvc(req, res, tracer);
           } else {
             respond(404);
           }
