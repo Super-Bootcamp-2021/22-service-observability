@@ -7,20 +7,20 @@
 npm install
 ```
 ```bash
-npm run web:build
+npm run web:dev
 ```
+### untuk menjalankan service yang tidak perlu nodemon
 ```bash
 npm run service:build
 ```
 ```bash
-npm run service:start worker
+npm run service:start worker/task/performance
+```
+### untuk menjalankan service yang perlu nodemon
+- ganti exec pada file service/nodemon.json
+```json
+  "exec": "npm run service worker/task/performance"
 ```
 ```bash
-npm run service:start task
-```
-```bash
-npm run service:start performance
-```
-```bash
-live-server --port=4545 webapp/www
+npm run service:dev
 ```
