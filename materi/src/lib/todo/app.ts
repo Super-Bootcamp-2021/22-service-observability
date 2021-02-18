@@ -3,6 +3,7 @@ import Vue, { CreateElement, VNode } from 'vue';
 import { store$ } from './store';
 import { addTaskAsync, loadTasksAsync } from './todo-client';
 import { TodoList } from './components/todo-list';
+import { captureMessage } from '@sentry/vue';
 import '../sentry';
 
 new Vue({
@@ -45,6 +46,7 @@ new Vue({
   methods: {
     submitNewTask(event) {
       event.preventDefault();
+      captureMessage('Todo added');
       if (!this.task?.length) {
         return;
       }

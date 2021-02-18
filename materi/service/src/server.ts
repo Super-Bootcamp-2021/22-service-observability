@@ -7,19 +7,28 @@ import { TodoSchema } from './todo.model';
 import { config } from './config';
 import { Logger } from 'winston';
 import { createNodeLogger, LogLevel } from './lib/logger';
+import { JaegerTracer } from 'jaeger-client';
+import { createTracer } from './lib/tracer';
+import { AppContext } from './lib/context';
 
-const logger: Logger = createNodeLogger(LogLevel.info, 'todo-service');
+let ctx: AppContext;
 
 /**
  * intiate database connection
  */
 async function init(): Promise<void> {
+  const logger: Logger = createNodeLogger(LogLevel.info, 'todo-service');
+  const tracer: JaegerTracer = createTracer('todo-service');
+  ctx = {
+    logger,
+    tracer,
+  };
   try {
-    logger.info('connect to database');
+    ctx.logger.info('connect to database');
     await connect([TodoSchema], config.database);
-    logger.info('database connected');
+    ctx.logger.info('database connected');
   } catch (err) {
-    logger.error('database connection failed');
+    ctx.logger.error('database connection failed');
     process.exit(1);
   }
 }
@@ -50,7 +59,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   switch (true) {
     case uri.pathname === '/add':
       if (method === 'POST') {
-        addSvc(req, res);
+        addSvc(req, res, ctx);
       } else {
         message = 'Method tidak tersedia';
         respond();
@@ -58,7 +67,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       break;
     case uri.pathname === '/remove':
       if (method === 'POST') {
-        removeSvc(req, res);
+        removeSvc(req, res, ctx);
       } else {
         message = 'Method tidak tersedia';
         respond();
@@ -66,7 +75,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       break;
     case uri.pathname === '/list':
       if (method === 'GET') {
-        listSvc(req, res);
+        listSvc(req, res, ctx);
       } else {
         message = 'Method tidak tersedia';
         respond();
@@ -74,7 +83,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       break;
     case uri.pathname === '/done':
       if (method === 'PUT') {
-        doneSvc(req, res);
+        doneSvc(req, res, ctx);
       } else {
         message = 'Method tidak tersedia';
         respond();
@@ -82,7 +91,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       break;
     case uri.pathname === '/undone':
       if (method === 'PUT') {
-        undoneSvc(req, res);
+        undoneSvc(req, res, ctx);
       } else {
         message = 'Method tidak tersedia';
         respond();

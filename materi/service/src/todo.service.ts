@@ -11,6 +11,7 @@ import {
   ERROR_TODO_NOT_FOUND,
 } from './todo';
 import { IncomingMessage, ServerResponse } from 'http';
+import { AppContext } from './lib/context';
 
 /**
  * service to get list of todos
@@ -19,7 +20,8 @@ import { IncomingMessage, ServerResponse } from 'http';
  */
 export async function listSvc(
   req: IncomingMessage,
-  res: ServerResponse
+  res: ServerResponse,
+  { tracer, logger }: AppContext
 ): Promise<void> {
   try {
     const todos = await list();
@@ -41,32 +43,67 @@ export async function listSvc(
  */
 export async function addSvc(
   req: IncomingMessage,
-  res: ServerResponse
+  res: ServerResponse,
+  { tracer, logger }: AppContext
 ): Promise<void> {
   let data = '';
   req.on('data', (chunk) => {
     data += chunk;
   });
   req.on('end', async () => {
+    const parentSpan = tracer.startSpan('post_add');
+    const span = tracer.startSpan('parsing_body', {
+      childOf: parentSpan,
+    });
+
     const body = JSON.parse(data); // 'Buy the milk'
     if (!body.task) {
+      logger.error('task is null');
+      span.setTag('error', true);
+      span.log({
+        event: 'error parsing body',
+        message: 'parameter task tidak ada',
+      });
       res.statusCode = 400;
       res.write(ERROR_ADD_DATA_INVALID);
       res.end();
+      span.finish();
+      parentSpan.finish();
       return;
     }
+    span.finish();
+    const span2 = tracer.startSpan('write_todo_on_db', {
+      childOf: parentSpan,
+    });
     try {
       const todo = await add(body);
+      span2.finish();
       res.setHeader('content-type', 'application/json');
       res.statusCode = 200;
+      const span3 = tracer.startSpan('encode_result', {
+        childOf: parentSpan,
+      });
       res.write(JSON.stringify(todo));
       res.end();
+      span3.finish();
     } catch (err) {
+      span.setTag('error', true);
+      span.log({
+        event: 'error write to database',
+        message: err.message,
+      });
+      span2.finish();
       res.statusCode = 500;
+      const span3 = tracer.startSpan('encode_result', {
+        childOf: parentSpan,
+      });
       res.write(JSON.stringify(err.message || err));
       res.end();
+      span3.finish();
+      parentSpan.finish();
       return;
     }
+    parentSpan.finish();
   });
 }
 
@@ -77,7 +114,8 @@ export async function addSvc(
  */
 export async function removeSvc(
   req: IncomingMessage,
-  res: ServerResponse
+  res: ServerResponse,
+  { tracer, logger }: AppContext
 ): Promise<void> {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'] as string;
@@ -114,7 +152,8 @@ export async function removeSvc(
  */
 export async function doneSvc(
   req: IncomingMessage,
-  res: ServerResponse
+  res: ServerResponse,
+  { tracer, logger }: AppContext
 ): Promise<void> {
   const uri = url.parse(req.url, true);
   const id = <string>uri.query['id'];
@@ -152,7 +191,8 @@ export async function doneSvc(
  */
 export async function undoneSvc(
   req: IncomingMessage,
-  res: ServerResponse
+  res: ServerResponse,
+  { tracer, logger }: AppContext
 ): Promise<void> {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'] as string;
