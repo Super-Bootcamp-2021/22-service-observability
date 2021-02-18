@@ -8,12 +8,11 @@ const {
   infoSvc,
   getPhotoSvc,
 } = require('./worker.service');
-const {config} = require('../config');
-
+const { config } = require('../config');
 
 let server;
 
-function run(callback) {
+async function run(context, callback) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -32,35 +31,35 @@ function run(callback) {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res);
+            return registerSvc(req, res, context);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, context);
           } else {
             respond(404);
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res);
+            return infoSvc(req, res, context);
           } else {
             respond(404);
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res);
+            return removeSvc(req, res, context);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
-            return getPhotoSvc(req, res);
+            return getPhotoSvc(req, res, context);
           }
           respond(404);
       }

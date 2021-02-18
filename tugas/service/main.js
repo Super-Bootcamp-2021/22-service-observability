@@ -8,7 +8,9 @@ const workerServer = require('./worker/server');
 const tasksServer = require('./tasks/server');
 const performanceServer = require('./performance/server');
 const {config} = require('./config');
+const tracer = require('./lib/tracer');
 
+let ctx;
 
 async function init() {
   try {
@@ -45,6 +47,16 @@ async function init() {
   }
 }
 
+async function tracerInit(config) {
+  try {
+    console.log('connect to tracer ...');
+    return await tracer.connect(config);
+  } catch (err) {
+    console.error('tracer connection failed', err);
+    process.exit(1);
+  }
+}
+
 async function onStop() {
   bus.close();
   kv.close();
@@ -54,15 +66,18 @@ async function main(command) {
   switch (command) {
     case 'performance':
       await init();
-      performanceServer.run(onStop);
+      ctx = await tracerInit(config.tracer.performance);
+      performanceServer.run(ctx, onStop);
       break;
     case 'task':
       await init();
-      tasksServer.run(onStop);
+      ctx = await tracerInit(config.tracer.task);
+      tasksServer.run(ctx, onStop);
       break;
     case 'worker':
       await init();
-      workerServer.run(onStop);
+      ctx = await tracerInit(config.tracer.worker);
+      await workerServer.run(ctx, onStop);
       break;
     default:
       console.log(`${command} tidak dikenali`);

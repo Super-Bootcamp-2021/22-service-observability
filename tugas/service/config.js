@@ -34,6 +34,17 @@ const defaultConfig = {
     taskName: 'localhost',
     performanceName: 'localhost',
   },
+  tracer: {
+    worker: {
+      serviceName: 'worker-service',
+    },
+    task: {
+      serviceName: 'task-service',
+    },
+    performance: {
+      serviceName: 'performance-service',
+    },
+  },
 };
 
 const config = rc('tm', defaultConfig);
