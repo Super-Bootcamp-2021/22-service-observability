@@ -1,5 +1,7 @@
 const http = require('http');
+const { createNodeLogger } = require('../lib/logger');
 
+const logger = createNodeLogger('info', 'Task Service');
 const WORKER_HOST = 'http://localhost:7001';
 const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
 
@@ -8,6 +10,7 @@ function info(id) {
     const req = http.request(`${WORKER_HOST}/info?id=${id}`, (res) => {
       let data = '';
       if (res.statusCode === 404) {
+        logger.error('Not found get worker');
         reject(ERROR_WORKER_NOT_FOUND);
       }
       res.on('data', (chunk) => {
