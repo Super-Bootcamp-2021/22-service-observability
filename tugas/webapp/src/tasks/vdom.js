@@ -3,6 +3,8 @@ const { getList, add, getWorkersList } = require('./async-action');
 const { store$, errorAction, clearErrorAction } = require('./store');
 import { TaskList } from './task-list';
 import './main.css';
+import { captureMessage } from '@sentry/vue';
+import '../lib/sentry';
 
 new Vue({
   el: '#app-1',
@@ -120,6 +122,7 @@ new Vue({
     submitNewTask(event) {
       event.preventDefault();
       if (!this.job || !this.assignee_id || !this.attachment) {
+        captureMessage('Task failed added');
         store$.dispatch(errorAction('form isian tidak lengkap!'));
         return;
       }

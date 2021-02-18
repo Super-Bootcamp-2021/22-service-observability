@@ -1,6 +1,5 @@
 const { summary } = require('./async-action');
 const { store$ } = require('./store');
-
 require('./main.css');
 
 const workers = document.getElementById('workers');

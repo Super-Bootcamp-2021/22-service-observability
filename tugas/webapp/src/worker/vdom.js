@@ -4,6 +4,7 @@ import { getList } from './async-action';
 import { store$ } from './store';
 import { ListWorker } from './components/worker-list';
 import { AddWorker } from './components/worker-add';
+import '../lib/sentry';
 
 new Vue({
   el: '#worker',
