@@ -8,7 +8,7 @@ import { config } from './config';
 import { Logger } from 'winston';
 import { createNodeLogger, LogLevel } from './lib/logger';
 
-const logger: Logger = createNodeLogger(LogLevel.info);
+const logger: Logger = createNodeLogger(LogLevel.info, 'todo-service');
 
 /**
  * intiate database connection

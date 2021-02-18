@@ -3,6 +3,7 @@ import Vue, { CreateElement, VNode } from 'vue';
 import { store$ } from './store';
 import { addTaskAsync, loadTasksAsync } from './todo-client';
 import { TodoList } from './components/todo-list';
+import '../sentry';
 
 new Vue({
   el: '#todo-app',
