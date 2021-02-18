@@ -5,6 +5,18 @@ import { store$, errorAction, clearErrorAction } from './store';
 import Vue, { CreateElement, VNode } from 'vue';
 import { WorkerList } from './component/worker-list';
 import { WorkerInput } from './component/worker-input';
+import * as Sentry from '@sentry/vue';
+import { Integrations } from '@sentry/tracing';
+
+Sentry.init({
+  Vue,
+  dsn: process.env.SENTRY_DSN || '',
+  integrations: [new Integrations.BrowserTracing()],
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
 
 export interface workerInterface {
   name: string;

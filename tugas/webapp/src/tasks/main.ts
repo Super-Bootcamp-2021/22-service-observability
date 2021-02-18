@@ -1,10 +1,4 @@
-import {
-  done,
-  cancel,
-  getList,
-  add,
-  getWorkersList,
-} from './async-action';
+import { done, cancel, getList, add, getWorkersList } from './async-action';
 import { store$, errorAction, clearErrorAction } from './store';
 
 import './main.css';
@@ -19,19 +13,20 @@ const list = document.getElementById('list');
 const errorTxt = document.getElementById('error-text');
 const loadingTxt = document.getElementById('loading-text');
 
-if(form&&job&&attachment){
+if (form && job && attachment) {
   form.onsubmit = (event) => {
     event.preventDefault();
     store$.dispatch<any>(clearErrorAction());
     if (
       !job.value ||
       !assignee.options[assignee.selectedIndex] ||
-      !attachment.files || !attachment.files[0]
+      !attachment.files ||
+      !attachment.files[0]
     ) {
       store$.dispatch<any>(errorAction('form isian tidak lengkap!'));
       return;
     }
-  const idnum = parseInt(assignee.options[assignee.selectedIndex].value)
+    const idnum = parseInt(assignee.options[assignee.selectedIndex].value);
     // register user
     store$.dispatch<any>(
       add({
@@ -40,11 +35,10 @@ if(form&&job&&attachment){
         attachment: attachment.files[0],
       })
     );
-  
+
     // reset form
     form.reset();
   };
-  
 }
 
 // presentation layer
@@ -58,16 +52,16 @@ render(state);
 store$.dispatch<any>(getList);
 store$.dispatch<any>(getWorkersList);
 
-function render(state:State) {
+function render(state: State) {
   // render error
   if (state.error && errorTxt) {
     errorTxt.textContent = state.error.toString();
-  } else if(errorTxt){
+  } else if (errorTxt) {
     errorTxt.textContent = '';
   }
-  if (state.loading &&loadingTxt) {
+  if (state.loading && loadingTxt) {
     loadingTxt.style.display = '';
-  } else if(loadingTxt){
+  } else if (loadingTxt) {
     loadingTxt.style.display = 'none';
   }
 
@@ -82,35 +76,35 @@ function render(state:State) {
   }
 
   // render list of worker
- if(list){
-   list.innerHTML = '';
-  for (let i = 0; i < state.tasks.length; i++) {
-    console.log('dari render',state.tasks.length)
-    const task = state.tasks[i];
-    const li = document.createElement('div');
-    let innerHtml = `
+  if (list) {
+    list.innerHTML = '';
+    for (let i = 0; i < state.tasks.length; i++) {
+      console.log('dari render', state.tasks.length);
+      const task = state.tasks[i];
+      const li = document.createElement('div');
+      let innerHtml = `
       <a href="${task.attachment}" target="_blank">lampiran</a>
       <span>${task.job}</span> -
       <span>${task.assignee}</span>
     `;
-    if (task.done) {
-      innerHtml += '\n<span>sudah selesai</span>';
-      li.innerHTML = innerHtml;
-    } else {
-      const cancelBtn = document.createElement('button');
-      cancelBtn.innerText = 'batal';
-      cancelBtn.onclick = function () {
-        store$.dispatch<any>(cancel(task.id));
-      };
-      const doneBtn = document.createElement('button');
-      doneBtn.innerText = 'selesai';
-      doneBtn.onclick = function () {
-        store$.dispatch<any>(done(task.id));
-      };
-      li.innerHTML = innerHtml;
-      li.append(cancelBtn, doneBtn);
+      if (task.done) {
+        innerHtml += '\n<span>sudah selesai</span>';
+        li.innerHTML = innerHtml;
+      } else {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.innerText = 'batal';
+        cancelBtn.onclick = function () {
+          store$.dispatch<any>(cancel(task.id));
+        };
+        const doneBtn = document.createElement('button');
+        doneBtn.innerText = 'selesai';
+        doneBtn.onclick = function () {
+          store$.dispatch<any>(done(task.id));
+        };
+        li.innerHTML = innerHtml;
+        li.append(cancelBtn, doneBtn);
+      }
+      list.append(li);
     }
-    list.append(li);
   }
- }
 }
