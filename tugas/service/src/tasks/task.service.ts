@@ -27,11 +27,16 @@ export function addSvc(req: IncomingMessage, res: ServerResponse, { tracer, logg
   let finished = false;
 
   function abort() {
+    const span2 = tracer.startSpan('encode_result', {
+      childOf: parentSpan,
+    });
     req.unpipe(busboy);
     if (!req.aborted) {
       res.statusCode = 500;
       res.write('internal server error');
       res.end();
+      span2.finish();
+      parentSpan.finish();
     }
   }
 
@@ -49,9 +54,13 @@ export function addSvc(req: IncomingMessage, res: ServerResponse, { tracer, logg
           });
           try {
             const task = await add(data);
-            res.setHeader('content-type', 'application/json');
-            res.write(JSON.stringify(task));
             span.finish();
+            res.setHeader('content-type', 'application/json');
+            const span2 = tracer.startSpan('encode_result', {
+              childOf: parentSpan,
+            });
+            res.write(JSON.stringify(task));
+            span2.finish();
           } catch (err) {
             if (err === ERROR_TASK_DATA_INVALID) {
               res.statusCode = 401;
@@ -65,7 +74,11 @@ export function addSvc(req: IncomingMessage, res: ServerResponse, { tracer, logg
             } else {
               res.statusCode = 500;
             }
+            const span2 = tracer.startSpan('encode_result', {
+              childOf: parentSpan,
+            });
             res.write(err);
+            span2.finish();
           }
           res.end();
           parentSpan.finish();
