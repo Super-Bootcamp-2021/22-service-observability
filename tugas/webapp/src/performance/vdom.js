@@ -2,6 +2,7 @@ require('./main.css');
 import Vue from 'vue';
 import { store$ } from './store';
 import { summary } from './async-action';
+import '../lib/sentry';
 
 new Vue({
   el: '#performance',

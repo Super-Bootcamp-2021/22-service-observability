@@ -3,6 +3,7 @@ const { getList, add, getWorkersList } = require('./async-action');
 const { store$, errorAction, clearErrorAction } = require('./store');
 import { TaskList } from './task-list';
 import './main.css';
+import '../lib/sentry';
 
 new Vue({
   el: '#app-1',
