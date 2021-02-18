@@ -5,7 +5,18 @@ import { getList, getWorkersList } from './async-action';
 import { State } from './reducer';
 import { Tasklist } from './components/task-list';
 import { TaskInput } from './components/task-input';
+import * as Sentry from '@sentry/vue';
+import { Integrations } from '@sentry/tracing';
 
+Sentry.init({
+  Vue,
+  dsn: process.env.SENTRY_DSN || '',
+  integrations: [new Integrations.BrowserTracing()],
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
 new Vue({
   el: '#task-list',
   components: {
