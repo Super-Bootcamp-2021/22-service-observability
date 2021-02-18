@@ -1,0 +1,10 @@
+{
+  "name": "Todo Service",
+  "entryPoints": [
+    "./service/todo.ts",
+    "./service/lib/orm.ts",
+    "./service/todo.model.ts"
+  ],
+  "out": "./docs/service",
+  "readme": "./service/README.md"
+}

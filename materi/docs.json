@@ -1,0 +1,10 @@
+{
+  "name": "Todo WebApp",
+  "entryPoints": [
+    "./src/lib/todo/reducer.ts",
+    "./src/lib/api/client.ts",
+    "./src/lib/api/todo-service.ts"
+  ],
+  "out": "./docs/webapp",
+  "readme": "./README.md"
+}
