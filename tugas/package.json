@@ -19,11 +19,12 @@
   "license": "ISC",
   "devDependencies": {
     "@types/busboy": "^0.2.3",
+    "@types/jaeger-client": "^3.15.4",
     "@types/mime-types": "^2.1.0",
-    "@types/winston": "^2.4.4",
     "@types/minio": "^7.0.7",
     "@types/rc": "^1.1.0",
     "@types/redis": "^2.8.28",
+    "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.15.0",
     "css-loader": "^5.0.1",

@@ -9,6 +9,11 @@ import * as workerServer from './worker/server';
 import * as tasksServer from './tasks/server';
 import * as performanceServer from './performance/server';
 import { config } from './config';
+import { Logger } from 'winston';
+import { createNodeLogger, LogLevel } from './lib/logger';
+import { JaegerTracer } from 'jaeger-client';
+import { createTracer } from './lib/tracer';
+import { AppContext } from './lib/context';
 
 async function init() {
   try {
