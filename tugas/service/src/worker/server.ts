@@ -10,10 +10,11 @@ import {
 } from './worker.service';
 import { IncomingMessage, ServerResponse } from 'http';
 import { config } from '../config';
+import { AppContext } from '../lib/context';
 
 let server: any;
 
-export function run(callback: () => any): void {
+export function run(callback: () => any, ctx: AppContext): void {
   server = createServer((req: IncomingMessage, res: ServerResponse) => {
     // cors
     const aborted = cors(req, res);
@@ -33,35 +34,35 @@ export function run(callback: () => any): void {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res);
+            return registerSvc(req, res, ctx);
           } else {
             respond(404, 'Method not found');
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, ctx);
           } else {
             respond(404, 'Method not found');
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res);
+            return infoSvc(req, res, ctx);
           } else {
             respond(404, 'Method not found');
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res);
+            return removeSvc(req, res, ctx);
           } else {
             respond(404, 'Method not found');
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
-            return getPhotoSvc(req, res);
+            return getPhotoSvc(req, res, ctx);
           }
           respond(404, 'Method not found');
       }

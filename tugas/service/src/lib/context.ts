@@ -1,4 +1,3 @@
-  
 import { JaegerTracer } from 'jaeger-client';
 import { Logger } from 'winston';
 
