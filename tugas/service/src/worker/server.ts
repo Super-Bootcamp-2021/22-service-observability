@@ -26,27 +26,16 @@ import { JaegerTracer } from 'jaeger-client';
 import { createTracer } from '../lib/tracer';
 import { AppContext } from '../lib/context';
 
-let ctx: AppContext
+let ctx: AppContext;
 let server: Server;
 
-async function init(): Promise<void> {
-  const logger: Logger = createNodeLogger(LogLevel.info, 'worker.service');
-  const tracer: JaegerTracer = createTracer('worker.service');
+export function run(callback) {
+  const logger: Logger = createNodeLogger(LogLevel.info, 'worker-service');
+  const tracer: JaegerTracer = createTracer('worker-service');
   ctx = {
     logger,
     tracer,
   };
-  try {
-    ctx.logger.info('connect to database');
-    await connect([WorkerSchema], config.database);
-    ctx.logger.info('database connected');
-  } catch (err) {
-    ctx.logger.error('database connection failed');
-    process.exit(1);
-  }
-}
-
-export function run(callback) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -65,7 +54,7 @@ export function run(callback) {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res,ctx);
+            return registerSvc(req, res, ctx);
           } else {
             respond(404, 'Method tidak tersedia');
           }
