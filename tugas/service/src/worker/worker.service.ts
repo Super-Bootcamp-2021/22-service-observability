@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as Busboy from 'busboy';
 import * as url from 'url';
 import * as mime from 'mime-types';
@@ -14,12 +15,12 @@ import {
 import { saveFile, readFile, ERROR_FILE_NOT_FOUND } from '../lib/storage';
 import { IncomingMessage, ServerResponse } from 'http';
 import { AppContext } from '../lib/context';
-import { Span } from 'opentracing';
 
 export function registerSvc(
-  req: IncomingMessage, 
-  res: ServerResponse, 
-  { tracer, logger}: AppContext) {
+  req: IncomingMessage,
+  res: ServerResponse,
+  { tracer, logger }: AppContext
+) {
   const busboy = new Busboy({ headers: req.headers });
 
   const data: Worker = {
@@ -59,7 +60,7 @@ export function registerSvc(
             data.photo = await saveFile(file, mimetype);
           } catch (err) {
             logger.error('photo not found');
-            span.setTag('error', true)
+            span.setTag('error', true);
             span.log({
               event: 'error save photo',
               message: 'file photo tidak ada',
@@ -67,19 +68,19 @@ export function registerSvc(
             abort();
           }
           if (!req.aborted && finished) {
-            span.finish()
+            span.finish();
             const span2 = tracer.startSpan('write_worker_on_db', {
               childOf: parentSpan,
-            })
+            });
             try {
               const worker = await register(data);
-              span2.finish()
+              span2.finish();
               res.setHeader('content-type', 'application/json');
               const span3 = tracer.startSpan('encode_result', {
                 childOf: parentSpan,
               });
               res.write(JSON.stringify(worker));
-              span3.finish()
+              span3.finish();
             } catch (err) {
               if (err === ERROR_REGISTER_DATA_INVALID) {
                 span.setTag('error', true);
@@ -110,7 +111,7 @@ export function registerSvc(
           file.pipe(noop);
         }
       }
-      parentSpan.finish()
+      parentSpan.finish();
     }
   );
 
@@ -132,8 +133,8 @@ export function registerSvc(
 
 export async function listSvc(
   req: IncomingMessage,
-  res: ServerResponse, 
-  { tracer, logger}: AppContext
+  res: ServerResponse,
+  { tracer, logger }: AppContext
 ): Promise<void> {
   const parentSpan = tracer.startSpan('worker_list');
   const span = tracer.startSpan('show_worker_list', {
@@ -144,24 +145,24 @@ export async function listSvc(
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(workers));
     res.end();
-    span.finish()
+    span.finish();
   } catch (err) {
-    span.setTag('error', true)
+    span.setTag('error', true);
     span.log({
       event: 'error show worker list',
-      message: 'server cannot found'
-    })
+      message: 'server cannot found',
+    });
     res.statusCode = 500;
     res.end();
     return;
   }
-  parentSpan.finish()
+  parentSpan.finish();
 }
 
 export async function infoSvc(
   req: IncomingMessage,
   res: ServerResponse,
-  { tracer, logger}: AppContext
+  { tracer, logger }: AppContext
 ): Promise<void> {
   const parentSpan = tracer.startSpan('worker_info');
   const span = tracer.startSpan('get_worker_info', {
@@ -174,8 +175,8 @@ export async function infoSvc(
     span.setTag('error', true);
     span.log({
       event: 'error show worker info',
-      message: "id worker tidak ditemukan"
-    })
+      message: 'id worker tidak ditemukan',
+    });
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
     res.end();
@@ -186,35 +187,35 @@ export async function infoSvc(
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(worker));
     res.end();
-    span.finish()
+    span.finish();
   } catch (err) {
     if (err === ERROR_WORKER_NOT_FOUND) {
-      span.setTag('error', true)
+      span.setTag('error', true);
       span.log({
         event: 'error show worker list',
-        message: 'response code not found'
-      })
+        message: 'response code not found',
+      });
       res.statusCode = 404;
       res.write(err);
       res.end();
       return;
     }
-    span.setTag('error', true)
+    span.setTag('error', true);
     span.log({
       event: 'error show worker list',
-      message: 'server cannot found'
-    })
+      message: 'server cannot found',
+    });
     res.statusCode = 500;
     res.end();
     return;
   }
-  parentSpan.finish()
+  parentSpan.finish();
 }
 
 export async function removeSvc(
   req: IncomingMessage,
   res: ServerResponse,
-  { tracer, logger}: AppContext
+  { tracer, logger }: AppContext
 ): Promise<void> {
   const parentSpan = tracer.startSpan('remove_worker');
   const span = tracer.startSpan('remove_worker_info', {
@@ -228,7 +229,7 @@ export async function removeSvc(
     span.log({
       event: 'error remove worker',
       message: 'id worker tidak ditemukan',
-    })
+    });
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
     res.end();
@@ -236,7 +237,7 @@ export async function removeSvc(
   }
   try {
     const worker = await remove(id);
-    span.finish()
+    span.finish();
     res.setHeader('content-type', 'application/json');
     res.statusCode = 200;
     res.write(JSON.stringify(worker));
@@ -244,31 +245,31 @@ export async function removeSvc(
   } catch (err) {
     if (err === ERROR_WORKER_NOT_FOUND) {
       res.statusCode = 404;
-      span.setTag('error', true)
+      span.setTag('error', true);
       span.log({
         event: 'error show worker list',
-        message: 'response code not found'
-      })
+        message: 'response code not found',
+      });
       res.write(err);
       res.end();
       return;
     }
-    span.setTag('error', true)
+    span.setTag('error', true);
     span.log({
       event: 'error show worker list',
-      message: 'server cannot found'
-    })
+      message: 'server cannot found',
+    });
     res.statusCode = 500;
     res.end();
     return;
   }
-  parentSpan.finish()
+  parentSpan.finish();
 }
 
 export async function getPhotoSvc(
   req: IncomingMessage,
   res: ServerResponse,
-  { tracer, logger}: AppContext
+  { tracer, logger }: AppContext
 ): Promise<void> {
   const parentSpan = tracer.startSpan('get_photo');
   const span = tracer.startSpan('get_worker_photo', {
@@ -278,19 +279,19 @@ export async function getPhotoSvc(
   const objectName = uri.pathname!.replace('/photo/', '');
   if (!objectName) {
     logger.error('photo not found');
-      span.setTag('error', true);
-      span.log({
-        event: 'error parsing photo',
-        message: 'photo tidak dapat ditemukan',
-      });
+    span.setTag('error', true);
+    span.log({
+      event: 'error parsing photo',
+      message: 'photo tidak dapat ditemukan',
+    });
     res.statusCode = 400;
     res.write('request tidak sesuai');
     res.end();
   }
   try {
     const objectRead = await readFile(objectName);
-    span.finish()
-    let mimeContent = mime.lookup(objectName);
+    span.finish();
+    const mimeContent = mime.lookup(objectName);
     if (typeof mimeContent === 'string') {
       res.setHeader('Content-Type', mimeContent);
       res.statusCode = 200;
@@ -298,21 +299,21 @@ export async function getPhotoSvc(
     }
   } catch (err) {
     if (err === ERROR_FILE_NOT_FOUND) {
-      span.setTag('error', true)
+      span.setTag('error', true);
       span.log({
         event: 'error show worker list',
-        message: 'response code not found'
-      })
+        message: 'response code not found',
+      });
       res.statusCode = 404;
       res.write(err);
       res.end();
       return;
     }
-    span.setTag('error', true)
+    span.setTag('error', true);
     span.log({
       event: 'error show worker list',
-      message: 'server cannot found'
-    })
+      message: 'server cannot found',
+    });
     res.statusCode = 500;
     res.write('gagal membaca file');
     res.end();
