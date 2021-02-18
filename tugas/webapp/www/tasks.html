@@ -13,29 +13,7 @@
       <li><a href="performance.html">kinerja</a></li>
     </ul>
     <hr />
-    <p id="error-text" class="error"></p>
-    <p id="loading-text" class="primary">memuat...</p>
-    <h4>Buat tugas baru</h4>
-    <form id="form" action="" method="post">
-      <label for="job">Tugas:</label><br>
-      <textarea
-        name="job"
-        id="job"
-        cols="30"
-        rows="3"
-        placeholder="deskripsi pekerjaan"
-      ></textarea><br/>
-      <label for="assignee">Pekerja:</label><br>
-      <select name="assignee" id="assignee"></select>
-      <br/>
-      <label for="attachment">Lampiran:</label><br>
-      <input type="file" name="attachment" id="attachment" /><br/>
-      <button type="submit">kirim</button>
-    </form>
-    <hr />
-    <h4>Daftar tugas</h4>
-    <div id="list"></div>
-    </div>
+    <div id="task-app"></div>    
   </body>
 
   <script type="text/javascript" src="tasks.js"></script>
