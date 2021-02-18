@@ -4,6 +4,10 @@ const { stdout } = require('process');
 const { summarySvc } = require('./performance.service');
 const agg = require('./performance.agg');
 const { config } = require('../config');
+const { createTracer } = require('../lib/tracer');
+const { createNodeLogger } = require('../lib/logger');
+
+const logger = createNodeLogger('info', 'Performance-Service');
 
 let server;
 
@@ -28,13 +32,16 @@ function run(callback) {
           if (req.method === 'GET') {
             return summarySvc(req, res);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
         default:
+          logger.error('page not found');
           respond(404);
       }
     } catch (err) {
+      logger.error('unkown server error');
       respond(500, 'unkown server error');
     }
   });
