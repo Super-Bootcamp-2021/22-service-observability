@@ -9,6 +9,7 @@ const {
   getWorkersList,
 } = require('../async-action');
 const { store$, errorAction, clearErrorAction } = require('../store');
+const { captureException } = require('@sentry/vue');
 
 const TaskForm = Vue.extend({
   props: ['workers'],
@@ -102,6 +103,7 @@ const TaskForm = Vue.extend({
       event.preventDefault();
       store$.dispatch(clearErrorAction());
       if (!this.job && !this.assignee && !this.attachment) {
+				captureException('form isian tidak lengkap!');
         store$.dispatch(errorAction('form isian tidak lengkap!'));
         return;
       }
