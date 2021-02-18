@@ -13,6 +13,6 @@
 - error (log, tag)
 - process ke database
 - process encoding dari hasil output database ke response
-- hasil span process nya di screenshoot, cantumkan pada saat PR
+- hasil span process nya di screenshoot, cantumkan pada saat PR (on confirmed)
 
 url deployment dari vercel tolong dicantumkan di PR
