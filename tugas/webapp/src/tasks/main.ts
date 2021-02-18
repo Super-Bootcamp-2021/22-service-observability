@@ -40,7 +40,7 @@ new Vue({
   // created() {
   mounted() {
     const tes=this.state = store$.getState();
-    captureMessage('coba lihat');
+    
     store$.subscribe(() => {
       this.state = store$.getState();
     });
