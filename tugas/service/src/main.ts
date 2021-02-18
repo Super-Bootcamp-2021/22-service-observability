@@ -8,38 +8,52 @@ import * as workerServer from './worker/server';
 import * as tasksServer from './tasks/server';
 import * as performanceServer from './performance/server';
 import { config } from './config';
+import { AppContext } from './lib/context';
+import { Logger } from 'winston';
+import { createNodeLogger, LogLevel } from './lib/logger';
+import { JaegerTracer } from 'jaeger-client';
+import { createTracer } from './lib/tracer';
+
+let ctx: AppContext;
 
 async function init(): Promise<void> {
+  const logger: Logger = createNodeLogger(LogLevel.info, 'tm-service');
+  const tracer: JaegerTracer = createTracer('tm-service');
+  ctx = {
+    logger,
+    tracer,
+  };
+
   try {
-    console.log('connect to database');
+    ctx?.logger?.info('connect to database');
     await orm.connect([WorkerSchema, TaskSchema], config.database);
-    console.log('database connected');
+    ctx?.logger?.info('database connected');
   } catch (err) {
-    console.error('database connection failed');
+    ctx?.logger?.error('database connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to object storage');
+    ctx?.logger?.info('connect to object storage');
     await storage.connect('task-manager', config.objectStorage);
-    console.log('object storage connected');
+    ctx?.logger?.info('object storage connected');
   } catch (err) {
-    console.error('object storage connection failed');
+    ctx?.logger?.error('object storage connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to message bus');
+    ctx?.logger?.info('connect to message bus');
     await bus.connect(`nats://${config?.nats?.host}:${config?.nats?.port}`);
-    console.log('message bus connected');
+    ctx?.logger?.info('message bus connected');
   } catch (err) {
-    console.error('message bus connection failed');
+    ctx?.logger?.error('message bus connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to key value store');
+    ctx?.logger?.info('connect to key value store');
     await kv.connect(config?.redis);
-    console.log('key value store connected');
+    ctx?.logger?.info('key value store connected');
   } catch (err) {
-    console.error('key value store connection failed');
+    ctx?.logger?.error('key value store connection failed');
     process.exit(1);
   }
 }
@@ -64,8 +78,8 @@ async function main(command: string): Promise<void> {
       workerServer.run(onStop);
       break;
     default:
-      console.log(`${command} tidak dikenali`);
-      console.log('command yang valid: task, worker, performance');
+      ctx?.logger?.info(`${command} tidak dikenali`);
+      ctx?.logger?.info('command yang valid: task, worker, performance');
   }
 }
 
