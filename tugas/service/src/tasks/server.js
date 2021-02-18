@@ -9,7 +9,9 @@ const {
   getAttachmentSvc,
 } = require('./task.service');
 const { config } = require('../config');
-
+const { Logger }  = require('winston');
+const { JaegerTracer } = require('jaeger-client');
+const {createNodeLogger} = require('./logger')
 let server;
 
 function run(ctx, callback) {
