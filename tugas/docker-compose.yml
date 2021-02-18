@@ -1,0 +1,112 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    expose:
+      - 5432
+    ports:
+      - 8787:5432
+  redis:
+    image:  redis
+    expose:
+      - 6379
+    ports:
+      - 6363:6379
+  nats:
+    image: bitnami/nats:latest
+    expose:
+      - 4222
+      - 6222
+      - 8222
+  minio:
+    image: minio/minio
+    command:
+    - server
+    - /file
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    expose:
+      - 9000
+    ports:
+      - 8989:9000
+  
+  worker-svc:
+    image: ghcr.io/kelompok-argon/tm1-svc
+    command:
+    - service:start
+    - --
+    - worker
+    depends_on:
+    - nats
+    - postgres
+    - minio
+    - redis
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: postgres
+      tm_objectStorage__endPoint: minio
+      tm_objectStorage__accessKey: minioadmin
+      tm_objectStorage__secretKey: minioadmin
+      tm_nats__host: nats
+      tm_redis__host: redis
+      tm_server__portWorker: 7001
+    ports:
+      - 7001:7001
+  task-svc:
+    image: ghcr.io/kelompok-argon/tm1-svc
+    command:
+    - service:start
+    - --
+    - task
+    depends_on:
+    - nats
+    - postgres
+    - minio
+    - redis
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: postgres
+      tm_objectStorage__endPoint: minio
+      tm_objectStorage__accessKey: minioadmin
+      tm_objectStorage__secretKey: minioadmin
+      tm_nats__host: nats
+      tm_redis__host: redis
+      tm_host__worker: worker-svc
+      tm_server__portTask: 7002
+    ports:
+      - 7002:7002
+  performance-svc:
+    image: ghcr.io/kelompok-argon/tm1-svc
+    command:
+    - service:start
+    - --
+    - performance
+    depends_on:
+    - nats
+    - postgres
+    - minio
+    - redis
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: postgres
+      tm_objectStorage__endPoint: minio
+      tm_objectStorage__accessKey: minioadmin
+      tm_objectStorage__secretKey: minioadmin
+      tm_nats__host: nats
+      tm_redis__host: redis
+      tm_server__portTask: 7003
+    ports:
+      - 7003:7003
