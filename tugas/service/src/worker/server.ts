@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/ban-types */
 import { createServer, Server, IncomingMessage, ServerResponse } from 'http';
 import * as url from 'url';
 import { stdout } from 'process';
@@ -9,8 +11,11 @@ import {
   getPhotoSvc,
 } from './worker.service';
 import { config } from '../config';
+import { createTracer } from '../lib/tracer';
+import { JaegerTracer } from 'jaeger-client';
 
 let server: Server;
+const tracer: JaegerTracer = createTracer('worker-service');
 
 export function run(callback: Function): void {
   server = createServer((req, res) => {
@@ -31,35 +36,35 @@ export function run(callback: Function): void {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res);
+            return registerSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res);
+            return infoSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res);
+            return removeSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
-            return getPhotoSvc(req, res);
+            return getPhotoSvc(req, res, tracer);
           }
           respond(404);
       }

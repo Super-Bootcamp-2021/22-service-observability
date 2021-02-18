@@ -1,4 +1,6 @@
-import { createServer, IncomingMessage, ServerResponse, Server } from 'http'
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/ban-types */
+import { createServer, IncomingMessage, ServerResponse, Server } from 'http';
 import * as url from 'url';
 import { stdout } from 'process';
 import {
@@ -9,8 +11,11 @@ import {
   getAttachmentSvc,
 } from './task.service';
 import { config } from '../config';
+import { JaegerTracer } from 'jaeger-client';
+import { createTracer } from '../lib/tracer';
 
 export let server: Server;
+const tracer: JaegerTracer = createTracer('task-service');
 
 export function run(callback: Function): void {
   server = createServer((req, res) => {
@@ -31,35 +36,35 @@ export function run(callback: Function): void {
       switch (uri.pathname) {
         case '/add':
           if (req.method === 'POST') {
-            return addSvc(req, res);
+            return addSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/done':
           if (req.method === 'PUT') {
-            return doneSvc(req, res);
+            return doneSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         case '/cancel':
           if (req.method === 'PUT') {
-            return cancelSvc(req, res);
+            return cancelSvc(req, res, tracer);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/attachment\/\w+/.test(uri.pathname)) {
-            return getAttachmentSvc(req, res);
+            return getAttachmentSvc(req, res, tracer);
           }
           respond(404);
       }

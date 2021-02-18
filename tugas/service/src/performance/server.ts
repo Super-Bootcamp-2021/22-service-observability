@@ -1,11 +1,16 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/ban-types */
 import { createServer, Server, IncomingMessage, ServerResponse } from 'http';
 import * as url from 'url';
 import { stdout } from 'process';
 import { summarySvc } from './performance.service';
 import * as agg from './performance.agg';
 import { config } from '../config';
+import { createTracer } from '../lib/tracer';
+import { JaegerTracer } from 'jaeger-client';
 
 let server: Server;
+const tracer: JaegerTracer = createTracer('performance-service');
 
 export function run(callback: Function): void {
   server = createServer((req, res) => {
@@ -26,7 +31,7 @@ export function run(callback: Function): void {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res);
+            return summarySvc(req, res, tracer);
           } else {
             respond(404);
           }
