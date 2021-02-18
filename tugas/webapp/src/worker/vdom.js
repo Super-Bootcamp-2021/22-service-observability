@@ -6,6 +6,7 @@ const { WorkerList } = require('./components/worker-list');
 const { WorkerAdd } = require('./components/add-worker');
 const { NavComp } = require('./components/nav');
 const { StateComp } = require('./components/state-div');
+require ('../lib/sentry');
 
 new Vue({
   el: '#app1',

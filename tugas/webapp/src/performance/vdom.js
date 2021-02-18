@@ -5,6 +5,7 @@ const { summary } = require('./async-action');
 const { NavComp } = require('./components/nav');
 const { StateComp } = require('./components/state-div');
 const { PerfComp } = require('./components/performance-list');
+require ('../lib/sentry');
 
 new Vue({
   el: '#performance-app',
