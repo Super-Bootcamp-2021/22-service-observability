@@ -66,7 +66,6 @@ export function registerSvc(
           try {
             data.photo = await saveFile(file, mimetype);
           } catch (err) {
-            console.log(err);
             abort();
           }
           if (!req.aborted && finished) {

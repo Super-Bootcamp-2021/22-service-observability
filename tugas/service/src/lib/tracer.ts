@@ -1,4 +1,8 @@
 import { initTracer, JaegerTracer, TracingConfig } from 'jaeger-client';
+import { Logger } from 'winston';
+import { createNodeLogger, LogLevel } from './logger';
+
+const logger: Logger = createNodeLogger(LogLevel.info, `jaeger`);
 
 export function createTracer(serviceName: string): JaegerTracer {
   const config: TracingConfig = {
@@ -14,10 +18,10 @@ export function createTracer(serviceName: string): JaegerTracer {
   const options = {
     logger: {
       info(msg) {
-        console.log('INFO', msg);
+        logger.info(msg);
       },
       error(msg) {
-        console.log('ERROR', msg);
+        logger.error(msg);
       },
     },
   };

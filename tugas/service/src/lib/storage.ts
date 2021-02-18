@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as mime from 'mime-types';
 import { Client } from 'minio';
 
 export const ERROR_REQUIRE_OBJECT_NAME = 'error wajib memasukan nama objek';
 export const ERROR_FILE_NOT_FOUND = 'error file tidak ditemukan';
 
-let client:any;
-let bucketname:string;
+let client: any;
+let bucketname: string;
 
-export async function connect(_bucketname:string, options:any) {
+export async function connect(_bucketname: string, options: any) {
   client = new Client({
     ...options,
     useSSL: false,
@@ -23,7 +25,7 @@ export async function connect(_bucketname:string, options:any) {
   }
 }
 
-function randomFileName(mimetype:string) {
+function randomFileName(mimetype: string) {
   return (
     new Date().getTime() +
     '-' +
@@ -33,10 +35,10 @@ function randomFileName(mimetype:string) {
   );
 }
 
-export function saveFile(file:any, mimetype:string): Promise<string> {
+export function saveFile(file: any, mimetype: string): Promise<string> {
   const objectName = randomFileName(mimetype);
   return new Promise((resolve, reject) => {
-    client.putObject(bucketname, objectName, file, (err:any) => {
+    client.putObject(bucketname, objectName, file, (err: any) => {
       if (err) {
         reject(err);
         return;
@@ -46,7 +48,7 @@ export function saveFile(file:any, mimetype:string): Promise<string> {
   });
 }
 
-export async function readFile(objectName:string) {
+export async function readFile(objectName: string) {
   if (!objectName) {
     throw ERROR_REQUIRE_OBJECT_NAME;
   }

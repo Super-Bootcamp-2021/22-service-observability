@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { getConnection } from 'typeorm';
 import { Worker, WorkerData } from './worker.model';
 import * as bus from '../lib/bus';
 
-export const ERROR_REGISTER_DATA_INVALID = 'data registrasi pekerja tidak lengkap';
+export const ERROR_REGISTER_DATA_INVALID =
+  'data registrasi pekerja tidak lengkap';
 export const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';
 
 export async function register(data: WorkerData) {

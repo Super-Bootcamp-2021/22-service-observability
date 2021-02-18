@@ -1,17 +1,17 @@
-import * as orm from'./lib/orm';
-import * as storage from'./lib/storage';
-import * as kv from'./lib/kv';
-import * as bus from'./lib/bus';
-import { TaskSchema } from'./tasks/task.model';
-import { WorkerSchema } from'./worker/worker.model';
-import * as workerServer from'./worker/server';
-import * as tasksServer from'./tasks/server';
-import * as performanceServer from'./performance/server';
-import { config } from'./config';
+import * as orm from './lib/orm';
+import * as storage from './lib/storage';
+import * as kv from './lib/kv';
+import * as bus from './lib/bus';
+import { TaskSchema } from './tasks/task.model';
+import { WorkerSchema } from './worker/worker.model';
+import * as workerServer from './worker/server';
+import * as tasksServer from './tasks/server';
+import * as performanceServer from './performance/server';
+import { config } from './config';
 import { Logger } from 'winston';
 import { createNodeLogger, LogLevel } from './lib/logger';
 
-const logger: Logger = createNodeLogger(LogLevel.info);
+let logger: Logger;
 
 async function init() {
   try {
@@ -53,21 +53,25 @@ async function onStop() {
   kv.close();
 }
 
-async function main(command :string) {
+async function main(command: string) {
   switch (command) {
     case 'performance':
+      logger = createNodeLogger(LogLevel.info, `${command}-service`);
       await init();
       performanceServer.run(onStop);
       break;
     case 'task':
+      logger = createNodeLogger(LogLevel.info, `${command}-service`);
       await init();
       tasksServer.run(onStop);
       break;
     case 'worker':
+      logger = createNodeLogger(LogLevel.info, `${command}-service`);
       await init();
       workerServer.run(onStop);
       break;
     default:
+      logger = createNodeLogger(LogLevel.info, `main-app`);
       logger.info(`${command} tidak dikenali`);
       logger.info('command yang valid: task, worker, performance');
   }
