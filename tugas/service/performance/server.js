@@ -3,10 +3,17 @@ const url = require('url');
 const { stdout } = require('process');
 const { summarySvc } = require('./performance.service');
 const agg = require('./performance.agg');
+const { config } = require('../config');
+const { createTracer } = require('../lib/tracer');
+const { createNodeLogger } = require('../lib/logger');
+
+const logger = createNodeLogger('info', 'Performance Service');
+
 
 let server;
 
 function run(callback) {
+  const tracer = createTracer('performance service');
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -25,15 +32,18 @@ function run(callback) {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res);
+            return summarySvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
         default:
+          logger.error('page not found');
           respond(404);
       }
     } catch (err) {
+      logger.error('unkown server error');
       respond(500, 'unkown server error');
     }
   });
@@ -50,7 +60,7 @@ function run(callback) {
   });
 
   // run server
-  const PORT = 7003;
+  const PORT = config.server?.port.performance;
   server.listen(PORT, () => {
     stdout.write(`🚀 performance service listening on port ${PORT}\n`);
   });

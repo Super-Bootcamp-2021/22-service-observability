@@ -8,10 +8,15 @@ const {
   infoSvc,
   getPhotoSvc,
 } = require('./worker.service');
+const { config } = require('../config');
+const { createTracer } = require('../lib/tracer');
+const { createNodeLogger } = require('../lib/logger');
 
+const logger = createNodeLogger('info', 'Worker Service');
 let server;
 
 function run(callback) {
+  const tracer = createTracer('worker-service');
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -30,39 +35,45 @@ function run(callback) {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res);
+            return registerSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res);
+            return infoSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res);
+            return removeSvc(req, res, tracer);
           } else {
+            logger.error('page not found');
             respond(404);
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
-            return getPhotoSvc(req, res);
+            return getPhotoSvc(req, res, tracer);
           }
+          logger.error('page not found');
           respond(404);
       }
     } catch (err) {
+      logger.error('unkown server error');
       respond(500, 'unkown server error');
     }
   });
@@ -75,7 +86,7 @@ function run(callback) {
   });
 
   // run server
-  const PORT = 7001;
+  const PORT = config.server?.port?.worker;
   server.listen(PORT, () => {
     stdout.write(`🚀 worker service listening on port ${PORT}\n`);
   });

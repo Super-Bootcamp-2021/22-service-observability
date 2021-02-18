@@ -2,3 +2,11 @@ node_modules
 .nyc_output
 *.db
 file-storage
+docs
+.tmrc
+.env
+token.txt
+.vercel
+webapp/www/*.js
+webapp/www/*.txt 
+

@@ -11,8 +11,11 @@ const {
   ERROR_WORKER_NOT_FOUND,
 } = require('./worker');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
+const { createNodeLogger } = require('../lib/logger');
 
-function registerSvc(req, res) {
+const logger = createNodeLogger('info', 'Worker Service');
+
+function registerSvc(req, res, tracer) {
   const busboy = new Busboy({ headers: req.headers });
 
   const data = {
@@ -25,9 +28,20 @@ function registerSvc(req, res) {
 
   let finished = false;
 
+  const parentSpan = tracer.startSpan('register worker');
+  const span = tracer.startSpan('parsing body', { childOf: parentSpan });
+
   function abort() {
     req.unpipe(busboy);
     if (!req.aborted) {
+      span.setTag('error', true);
+      span.log({
+        event: 'error pasing body',
+        message: 'input data tidak valid atau tidak lengkap',
+      });
+      span.finish();
+      parentSpan.finish();
+      logger.error('Request entity too large');
       res.statusCode = 413;
       res.end();
     }
@@ -41,21 +55,45 @@ function registerSvc(req, res) {
         } catch (err) {
           abort();
         }
+
         if (!req.aborted && finished) {
+          span.finish();
+          const span2 = tracer.startSpan('write to database', {
+            childOf: parentSpan,
+          });
+          const span3 = tracer.startSpan('encode result', {
+            childOf: parentSpan,
+          });
           try {
             const worker = await register(data);
+            span2.finish();
             res.setHeader('content-type', 'application/json');
             res.write(JSON.stringify(worker));
+            span3.finish();
           } catch (err) {
+            span2.setTag('error', true);
+            span2.log({
+              event: 'error write to database',
+              message: err,
+            });
+            span2.finish();
             if (err === ERROR_REGISTER_DATA_INVALID) {
+              logger.error('Unauthorized add worker');
               res.statusCode = 401;
             } else {
+              logger.error('internal server error');
               res.statusCode = 500;
             }
+            span3.setTag('error', true);
+            span3.log({ event: 'error input data', message: err });
+            span3.finish();
             res.write(err);
           }
+          parentSpan.finish();
           res.end();
         }
+        span.finish();
+        parentSpan.finish();
         break;
       default: {
         const noop = new Writable({
@@ -76,6 +114,7 @@ function registerSvc(req, res) {
 
   busboy.on('finish', async () => {
     finished = true;
+    parentSpan.finish();
   });
 
   req.on('aborted', abort);
@@ -84,94 +123,186 @@ function registerSvc(req, res) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res) {
+async function listSvc(req, res, tracer) {
+  const parentSpan = tracer.startSpan('show list of worker');
+  const span = tracer.startSpan('get worker data', { childOf: parentSpan });
   try {
     const workers = await list();
+    span.finish();
+    parentSpan.finish();
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(workers));
     res.end();
   } catch (err) {
+    span.setTag('error', true);
+    span.log({ event: 'error get data', message: err });
+    span.finish();
+    parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function infoSvc(req, res) {
+async function infoSvc(req, res, tracer) {
+  const parentSpan = tracer.startSpan('info worker');
+  const span = tracer.startSpan('get id worker', { childOf: parentSpan });
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
+    span.setTag('error', true);
+    span.log({
+      event: 'error get id',
+      message: 'parameter id tidak ditemukan',
+    });
+    span.finish();
+    parentSpan.finish();
     res.statusCode = 401;
+    logger.error('Unauthorized info worker');
     res.write('parameter id tidak ditemukan');
     res.end();
     return;
   }
+  span.finish();
+  const span2 = tracer.startSpan('get worker by id', { childOf: parentSpan });
   try {
     const worker = await info(id);
+    span2.finish();
+    parentSpan.finish();
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(worker));
     res.end();
   } catch (err) {
     if (err === ERROR_WORKER_NOT_FOUND) {
+      span2.setTag('error', true);
+      span2.log({
+        event: 'error get worker by id',
+        message: err,
+      });
+      span2.finish();
+      parentSpan.finish();
+      logger.error('Not found info worker');
       res.statusCode = 404;
       res.write(err);
       res.end();
       return;
     }
+    span2.setTag('error', true);
+    span2.log({
+      event: 'internal server error',
+      message: err,
+    });
+    span2.finish();
+    parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function removeSvc(req, res) {
+async function removeSvc(req, res, tracer) {
+  const parentSpan = tracer.startSpan('remove worker');
+  const span = tracer.startSpan('get id worker', { childOf: parentSpan });
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
+    span.setTag('error', true);
+    span.log({
+      event: 'error get id',
+      message: 'parameter id tidak ditemukan',
+    });
+    span.finish();
+    parentSpan.finish();
+    logger.error('Unauthorized remove worker');
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
     res.end();
     return;
   }
+  span.finish();
+  const span2 = tracer.startSpan('remove worker by id', {
+    childOf: parentSpan,
+  });
   try {
     const worker = await remove(id);
+    span2.finish();
+    parentSpan.finish();
     res.setHeader('content-type', 'application/json');
     res.statusCode = 200;
     res.write(JSON.stringify(worker));
     res.end();
   } catch (err) {
     if (err === ERROR_WORKER_NOT_FOUND) {
+      span2.setTag('error', true);
+      span2.log({
+        event: 'error remove worker by id',
+        message: err,
+      });
+      span2.finish();
+      parentSpan.finish();
+      logger.error('Not found remove worker');
       res.statusCode = 404;
       res.write(err);
       res.end();
       return;
     }
+    span2.setTag('error', true);
+    span2.log({
+      event: 'internal server error',
+      message: err,
+    });
+    span2.finish();
+    parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function getPhotoSvc(req, res) {
+async function getPhotoSvc(req, res, tracer) {
+  const parentSpan = tracer.startSpan('get photo worker');
+  const span = tracer.startSpan('parse url', { childOf: parentSpan });
   const uri = url.parse(req.url, true);
   const objectName = uri.pathname.replace('/photo/', '');
   if (!objectName) {
+    span.setTag('error', true);
+    span.log({ event: 'error parse url', message: 'request tidak sesuai' });
+    span.finish();
+    parentSpan.finish();
     res.statusCode = 400;
+    logger.error('Bad request');
     res.write('request tidak sesuai');
     res.end();
   }
+  span.finish();
+  const span2 = tracer.startSpan('get photo worker', { childOf: parentSpan });
   try {
     const objectRead = await readFile(objectName);
+    span2.finish();
+    parentSpan.finish();
     res.setHeader('Content-Type', mime.lookup(objectName));
     res.statusCode = 200;
     objectRead.pipe(res);
   } catch (err) {
     if (err === ERROR_FILE_NOT_FOUND) {
+      span2.setTag('error', true);
+      span2.log({ event: 'error get photo', message: err });
+      span2.finish();
+      parentSpan.finish();
+      logger.error('Not found get photo');
       res.statusCode = 404;
       res.write(err);
       res.end();
       return;
     }
+    span2.setTag('error', true);
+    span2.log({ event: 'error get photo', message: err });
+    span2.finish();
+    parentSpan.finish();
+    logger.error('internal server error');
     res.statusCode = 500;
     res.write('gagal membaca file');
     res.end();

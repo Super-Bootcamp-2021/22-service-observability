@@ -4,54 +4,58 @@ const kv = require('./lib/kv');
 const bus = require('./lib/bus');
 const { TaskSchema } = require('./tasks/task.model');
 const { WorkerSchema } = require('./worker/worker.model');
+const { config } = require('./config');
 const workerServer = require('./worker/server');
 const tasksServer = require('./tasks/server');
 const performanceServer = require('./performance/server');
+const { createNodeLogger } = require('./lib/logger');
+
+const logger = createNodeLogger('info', 'Main Service');
 
 async function init() {
   try {
-    console.log('connect to database');
+    logger.info('connect to database');
     await orm.connect([WorkerSchema, TaskSchema], {
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'sanbercode2',
+      type: config.database?.type,
+      host: config.database?.host,
+      port: config.database?.port,
+      username: config.database?.username,
+      password: config.database?.password,
+      database: config.database?.database,
     });
-    console.log('database connected');
+    logger.info('database connected');
   } catch (err) {
-    console.error('database connection failed');
+    logger.error('database connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to object storage');
+    logger.info('connect to object storage');
     await storage.connect('task-manager', {
-      endPoint: '127.0.0.1',
-      port: 9000,
-      useSSL: false,
-      accessKey: 'local-minio',
-      secretKey: 'local-test-secret',
+      endPoint: config.minio?.endPoint,
+      port: config.minio?.port,
+      useSSL: config.minio?.useSSL,
+      accessKey: config.minio?.accessKey,
+      secretKey: config.minio?.secretKey,
     });
-    console.log('object storage connected');
+    logger.info('object storage connected');
   } catch (err) {
-    console.error('object storage connection failed');
+    logger.error('object storage connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to message bus');
+    logger.info('connect to message bus');
     await bus.connect();
-    console.log('message bus connected');
+    logger.info('message bus connected');
   } catch (err) {
-    console.error('message bus connection failed');
+    logger.error('message bus connection failed');
     process.exit(1);
   }
   try {
-    console.log('connect to key value store');
+    logger.info('connect to key value store');
     await kv.connect();
-    console.log('key value store connected');
+    logger.info('key value store connected');
   } catch (err) {
-    console.error('key value store connection failed');
+    logger.error('key value store connection failed');
     process.exit(1);
   }
 }
@@ -76,8 +80,8 @@ async function main(command) {
       workerServer.run(onStop);
       break;
     default:
-      console.log(`${command} tidak dikenali`);
-      console.log('command yang valid: task, worker, performance');
+      logger.info(`${command} tidak dikenali`);
+      logger.info('command yang valid: task, worker, performance');
   }
 }
 
