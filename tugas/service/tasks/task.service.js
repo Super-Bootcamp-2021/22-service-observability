@@ -125,10 +125,10 @@ async function listSvc(req, res, tracer) {
   const span = tracer.startSpan('get list tasks', { childOf: parentSpan });
   try {
     const tasks = await list();
-    span.finish();
-    parentSpan.finished();
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(tasks));
+    span.finish();
+    parentSpan.finish();
     res.end();
   } catch (err) {
     span.setTag('error', true);
