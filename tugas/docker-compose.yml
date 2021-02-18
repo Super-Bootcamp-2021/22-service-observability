@@ -1,0 +1,126 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: servers
+    expose:
+      - 5432
+    ports:
+      - 5434:5432
+  nats:
+    image: nats
+    hostname: nats-server
+    expose:
+      - "4222"
+    ports:
+      - "8222:8222"
+  redis:
+    image: redis
+    hostname: redis
+    expose:
+      - 6379
+  minio:
+    image: minio/minio
+    command: server /data/minio/
+    expose:
+      - "9000"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - 9001:9000
+  worker-svc:
+    image: ghcr.io/boron-superbootcamp2021/servers-svc
+    command:
+      - service:start 
+      - "--" 
+      - worker
+    links:
+      - nats
+    depends_on:
+      - postgres
+      - minio
+      - nats
+      - redis
+    environment:
+      server_database__host: postgres
+      server_database__password: postgres
+      server_database__database: servers
+      server_minio__endPoint: minio
+      server_minio__accessKey: minioadmin
+      server_minio__secretKey: minioadmin
+      server_nats__hostname: nats
+      server_nats__port: 4222
+      server_kv__hostname: redis
+      server_kv__port: 6379
+      server_server__port__task: 82
+      server_server__port__worker: 81
+      server_server__port__performance: 83
+    expose: 
+      - 81
+    ports:
+      - 7001:81
+  performance-svc:
+    image: ghcr.io/boron-superbootcamp2021/servers-svc
+    command:
+      - service:start 
+      - "--" 
+      - performance
+    links:
+      - nats
+    depends_on:
+      - postgres
+      - minio
+      - nats
+      - redis
+    environment:
+      server_database__host: postgres
+      server_database__password: postgres
+      server_database__database: servers
+      server_minio__endPoint: minio
+      server_minio__accessKey: minioadmin
+      server_minio__secretKey: minioadmin
+      server_nats__hostname: nats
+      server_nats__port: 4222
+      server_kv__hostname: redis
+      server_kv__port: 6379
+      server_server__port__task: 82
+      server_server__port__worker: 81
+      server_server__port__performance: 83
+    ports:
+      - 7003:83
+
+  task-svc:
+    image: ghcr.io/boron-superbootcamp2021/servers-svc
+    command:
+      - service:start 
+      - "--" 
+      - task
+    links:
+      - nats
+      - worker-svc
+    depends_on:
+      - worker-svc
+      - postgres
+      - minio
+      - nats
+      - redis
+    environment:      
+      server_database__host: postgres
+      server_database__password: postgres
+      server_database__database: servers
+      server_minio__endPoint: minio
+      server_minio__accessKey: minioadmin
+      server_minio__secretKey: minioadmin
+      server_nats__hostname: nats
+      server_nats__port: 4222
+      server_kv__hostname: redis
+      server_kv__port: 6379
+      server_server__port__worker: 7001
+      server_server__port__task: 82
+      server_server__port__performance: 83
+    ports:
+      - 7002:82
