@@ -4,8 +4,8 @@ const { Integrations } = require('@sentry/tracing');
 
 Sentry.init({
   Vue,
-	logErrors: true,
-	tracingOptions: {
+  logErrors: true,
+  tracingOptions: {
     trackComponents: true,
   },
   dsn: process.env.SENTRY_DSN || '',

@@ -39,7 +39,7 @@ const StateComp = Vue.extend({
           on: {
             click: () => {
               store$.dispatch(getList);
-							store$.dispatch(getWorkersList);
+              store$.dispatch(getWorkersList);
             },
           },
         },

@@ -4,7 +4,7 @@ const myFormat = format.printf(({ level, message, timestamp }) => {
   return `${timestamp} ${level}: ${message}`;
 });
 
-function createNodeLogger(level, serviceName){
+function createNodeLogger(level, serviceName) {
   const logger = createLogger({
     level: level || 'info',
     format: format.combine(format.timestamp(), myFormat),

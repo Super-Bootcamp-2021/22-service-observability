@@ -13,7 +13,7 @@ exports.summary = async (dispatch) => {
     const summary = await perfSvc.summary();
     dispatch(summaryLoadedAction(summary));
   } catch (err) {
-		captureException('gagal memuat informasi kinerja');
+    captureException('gagal memuat informasi kinerja');
     dispatch(errorAction('gagal memuat informasi kinerja'));
   }
 };

@@ -122,9 +122,9 @@ const WorkerAdd = Vue.extend({
         store$.dispatch(register(this.addWorker));
         event.target.reset();
       } else {
-				captureException('form isian tidak lengkap!');
-				store$.dispatch(errorAction('form isian tidak lengkap!'));
-			}
+        captureException('form isian tidak lengkap!');
+        store$.dispatch(errorAction('form isian tidak lengkap!'));
+      }
       return;
     },
   },

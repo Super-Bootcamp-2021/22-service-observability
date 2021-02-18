@@ -24,7 +24,7 @@ exports.add = (data) => async (dispatch) => {
     const task = await taskSvc.add(data);
     dispatch(addedAction(task));
   } catch (err) {
-		captureException(`gagal menambahkan ${data.job}`)
+    captureException(`gagal menambahkan ${data.job}`);
     dispatch(errorAction(`gagal menambahkan ${data.job}`));
   }
 };
@@ -40,7 +40,7 @@ exports.done = (id) => async (dispatch) => {
     await taskSvc.done(id);
     dispatch(doneAction(id));
   } catch (err) {
-		captureException('gagal menyelesaikan pekerjaan');
+    captureException('gagal menyelesaikan pekerjaan');
     dispatch(errorAction('gagal menyelesaikan pekerjaan'));
   }
 };
@@ -56,7 +56,7 @@ exports.cancel = (id) => async (dispatch) => {
     await taskSvc.cancel(id);
     dispatch(canceledAction(id));
   } catch (err) {
-		captureException('gagal membatalkan pekerjaan');
+    captureException('gagal membatalkan pekerjaan');
     dispatch(errorAction('gagal membatalkan pekerjaan'));
   }
 };
@@ -71,7 +71,7 @@ exports.getList = async (dispatch) => {
     const tasks = await taskSvc.list();
     dispatch(tasksLoadedAction(tasks));
   } catch (err) {
-		captureException('gagal memuat daftar pekerjaan');
+    captureException('gagal memuat daftar pekerjaan');
     dispatch(errorAction('gagal memuat daftar pekerjaan'));
   }
 };
@@ -86,7 +86,7 @@ exports.getWorkersList = async (dispatch) => {
     const workers = await workerSvc.list();
     dispatch(workersLoadedAction(workers));
   } catch (err) {
-		captureException('gagal memuat daftar pekerja');
+    captureException('gagal memuat daftar pekerja');
     dispatch(errorAction('gagal memuat daftar pekerja'));
   }
 };

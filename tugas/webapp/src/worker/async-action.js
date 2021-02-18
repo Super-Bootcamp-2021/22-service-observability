@@ -21,7 +21,7 @@ exports.register = (data) => async (dispatch) => {
     const worker = await workerSvc.register(data);
     dispatch(registeredAction(worker));
   } catch (err) {
-		captureException(`gagal mendaftarkan ${data.name}`);
+    captureException(`gagal mendaftarkan ${data.name}`);
     dispatch(errorAction(`gagal mendaftarkan ${data.name}`));
   }
 };
@@ -37,7 +37,7 @@ exports.remove = (id) => async (dispatch) => {
     await workerSvc.remove(id);
     dispatch(removedAction(id));
   } catch (err) {
-		captureException(`gagal menghapus pekerja`);
+    captureException(`gagal menghapus pekerja`);
     dispatch(errorAction('gagal menghapus pekerja'));
   }
 };
@@ -52,7 +52,7 @@ exports.getList = async (dispatch) => {
     const workers = await workerSvc.list();
     dispatch(workersLoadedAction(workers));
   } catch (err) {
-		captureException(`gagal memuat daftar pekerja`);
+    captureException(`gagal memuat daftar pekerja`);
     dispatch(errorAction('gagal memuat daftar pekerja'));
   }
 };

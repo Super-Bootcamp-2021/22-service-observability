@@ -103,7 +103,7 @@ const TaskForm = Vue.extend({
       event.preventDefault();
       store$.dispatch(clearErrorAction());
       if (!this.job && !this.assignee && !this.attachment) {
-				captureException('form isian tidak lengkap!');
+        captureException('form isian tidak lengkap!');
         store$.dispatch(errorAction('form isian tidak lengkap!'));
         return;
       }
