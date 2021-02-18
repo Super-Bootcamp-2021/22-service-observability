@@ -1,10 +1,10 @@
 import Vue, { CreateElement, VNode } from 'vue';
 import { add } from '../async-action';
 import { WorkerState } from '../reducer';
-import { store$ } from '../store';
+import { clearErrorAction, errorAction, store$ } from '../store';
 
 export const TaskInput = Vue.extend({
-  props: ['workers'],
+  props: ['workers', 'input'],
   render(create: CreateElement): VNode {
     return create('div', [
       create(
@@ -16,21 +16,24 @@ export const TaskInput = Vue.extend({
         },
         [
           create('p', 'tugas:'),
-          create('textarea', {
-            on: {
-              input: (event) => {
-                this.job = event.target.value;
+          create(
+            'textarea',
+            {
+              on: {
+                input: (event) => {
+                  this.input.job = event.target.value;
+                },
               },
             },
-          }),
+            this.$props.input.job
+          ),
           create('p', 'Assignee:'),
           create(
             'select',
             {
               on: {
                 change: (event) => {
-                  this.assignee_id =
-                    event.target.children[event.target.selectedIndex].value;
+                  this.$props.input.assignee_id = event.target.value;
                 },
               },
             },
@@ -39,8 +42,7 @@ export const TaskInput = Vue.extend({
                 'option',
                 {
                   domProps: {
-                    disabled: true,
-                    selected: true,
+                    value: 0,
                   },
                 },
                 'Pilih nama pegawai'
@@ -59,40 +61,46 @@ export const TaskInput = Vue.extend({
             ]
           ),
           create('p', 'Lampiran:'),
-          create('input', {
-            domProps: {
-              type: 'file',
-            },
-            on: {
-              input: (event) => {
-                this.attachment = event.target.files[0];
+          create(
+            'input',
+            {
+              domProps: {
+                type: 'file',
+              },
+              on: {
+                input: (event) => {
+                  this.$props.input.attachment = event.target.files[0];
+                },
               },
             },
-          }),
+            this.$props.input.attachment
+          ),
           create('br'),
           create('button', 'kirim'),
         ]
       ),
     ]);
   },
-  data() {
-    return {
-      job: '',
-      assignee_id: 0,
-      attachment: null,
-    };
-  },
   methods: {
     submitNewTask(event) {
       event.preventDefault();
-      store$.dispatch<any>(
-        add({
-          job: this.job,
-          assignee_id: this.assignee_id,
-          attachment: this.attachment,
-        })
-      );
-      event.target.reset();
+      store$.dispatch(clearErrorAction());
+      if (
+        this.$props.input.job &&
+        this.$props.input.assignee_id !== 0 &&
+        this.$props.input.attachment
+      ) {
+        store$.dispatch<any>(
+          add({
+            job: this.$props.input.job,
+            assignee_id: this.$props.input.assignee_id,
+            attachment: this.$props.input.attachment,
+          })
+        );
+        event.target.reset();
+      } else {
+        store$.dispatch(errorAction('form isian tidak lengkap!'));
+      }
     },
   },
 });
