@@ -4,7 +4,7 @@
     "host": "localhost",
     "port": 5432,
     "username": "postgres",
-    "password": "postgres",
+    "password": "123456",
     "database": "sanbercode2"
   },
   "objectStorage": {
@@ -14,12 +14,20 @@
     "accessKey": "minioadmin",
     "secretKey": "minioadmin"
   },
+  "nats": {
+    "host": "localhost",
+    "port": 4222
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
   "server": {
-    "portWorker": 9028,
-    "portTask": 9029,
-    "portPerformance": 9030
+    "portWorker": 7001,
+    "portTask": 7002,
+    "portPerformance": 7003
   },
   "host": {
-    "worker": "http://localhost:9028"
+    "worker": "localhost"
   }
 }
