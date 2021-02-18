@@ -9,11 +9,24 @@ import {
   getAttachmentSvc,
 } from './task.service';
 import { config } from '../config';
+import { AppContext } from '../lib/context';
+import { Logger } from 'winston';
+import { JaegerTracer } from 'jaeger-client';
+import { createNodeLogger, LogLevel } from '../lib/logger';
+import { createTracer } from '../lib/tracer';
 
 let server;
+let ctx: AppContext;
 
 export function run(callback) {
   server = createServer((req: IncomingMessage, res: ServerResponse) => {
+    const logger: Logger = createNodeLogger(LogLevel.info, 'task-service');
+    const tracer: JaegerTracer = createTracer('task-service');
+    ctx = {
+      logger,
+      tracer,
+    };
+    
     // cors
     const aborted = cors(req, res);
     if (aborted) {
@@ -31,35 +44,35 @@ export function run(callback) {
       switch (uri.pathname) {
         case '/add':
           if (req.method === 'POST') {
-            return addSvc(req, res);
+            return addSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/done':
           if (req.method === 'PUT') {
-            return doneSvc(req, res);
+            return doneSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/cancel':
           if (req.method === 'PUT') {
-            return cancelSvc(req, res);
+            return cancelSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/attachment\/\w+/.test(uri.pathname)) {
-            return getAttachmentSvc(req, res);
+            return getAttachmentSvc(req, res, ctx);
           }
           respond(404);
       }
