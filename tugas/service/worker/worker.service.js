@@ -70,12 +70,12 @@ function registerSvc(req, res, ctx, logger) {
           } catch (err) {
             if (err === ERROR_REGISTER_DATA_INVALID) {
               res.statusCode = 401;
-              spanInvalidData.finish();
               spanInvalidData.setTag('error', true);
+              spanInvalidData.finish();
             } else {
               res.statusCode = 500;
-              spanInternalServer.finish();
               spanInternalServer.setTag('error', true);
+              spanInternalServer.finish();
             }
             logger.error(err);
             res.write(err);
