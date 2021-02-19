@@ -12,7 +12,7 @@ const {
 } = require('./task');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
 
-function addSvc(req, res, ctx) {
+function addSvc(req, res, ctx, logger) {
   const busboy = new Busboy({ headers: req.headers });
   const spanParent = ctx.startSpan('add_task');
   const spanErrSavePhoto = ctx.startSpan('save_attachment', {
@@ -40,6 +40,7 @@ function addSvc(req, res, ctx) {
     if (!req.aborted) {
       res.statusCode = 500;
       res.write('internal server error');
+      logger.error('internal server error');
       res.end();
     }
   }
@@ -56,6 +57,7 @@ function addSvc(req, res, ctx) {
           spanInternalServer.finish();
           spanInvalidData.finish();
           spanParent.finish();
+          logger.error(err);
           abort();
         }
         if (!req.aborted && finished) {
@@ -80,6 +82,7 @@ function addSvc(req, res, ctx) {
               spanInvalidData.finish();
               spanParent.finish();
             }
+            logger.error(err);
             res.write(err);
           }
           res.end();
@@ -117,9 +120,8 @@ function addSvc(req, res, ctx) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res, ctx) {
+async function listSvc(req, res, ctx, logger) {
   const spanGetList = ctx.startSpan('get_list_task');
-
   try {
     const tasks = await list();
     spanGetList.finish();
@@ -127,6 +129,7 @@ async function listSvc(req, res, ctx) {
     res.write(JSON.stringify(tasks));
     res.end();
   } catch (err) {
+    logger.error(err);
     res.statusCode = 500;
     spanGetList.setTag('error', true);
     spanGetList.finish();
@@ -135,7 +138,7 @@ async function listSvc(req, res, ctx) {
   }
 }
 
-async function doneSvc(req, res, ctx) {
+async function doneSvc(req, res, ctx, logger) {
   const spanParent = ctx.startSpan('get_list_task');
   const spanParseUrl = ctx.startSpan('parse_url', {
     childOf: spanParent,
@@ -146,7 +149,6 @@ async function doneSvc(req, res, ctx) {
   const spanTaskNotFound = ctx.startSpan('task_not_found', {
     childOf: spanParent,
   });
-
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
@@ -157,6 +159,7 @@ async function doneSvc(req, res, ctx) {
     spanParent.finish();
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
+    logger.error('parameter id tidak ditemukan');
     res.end();
     return;
   }
@@ -171,6 +174,7 @@ async function doneSvc(req, res, ctx) {
     res.write(JSON.stringify(task));
     res.end();
   } catch (err) {
+    logger.error(err);
     if (err === ERROR_TASK_NOT_FOUND) {
       res.statusCode = 404;
       spanTaskNotFound.setTag('error', true);
@@ -191,7 +195,7 @@ async function doneSvc(req, res, ctx) {
   }
 }
 
-async function cancelSvc(req, res, ctx) {
+async function cancelSvc(req, res, ctx, logger) {
   const spanParent = ctx.startSpan('get_list_task');
   const spanParseUrl = ctx.startSpan('parse_url', {
     childOf: spanParent,
@@ -213,6 +217,7 @@ async function cancelSvc(req, res, ctx) {
     spanParent.finish();
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
+    logger.error('parameter id tidak ditemukan');
     res.end();
     return;
   }
@@ -227,6 +232,7 @@ async function cancelSvc(req, res, ctx) {
     res.write(JSON.stringify(task));
     res.end();
   } catch (err) {
+    logger.error(err);
     if (err === ERROR_TASK_NOT_FOUND) {
       res.statusCode = 404;
       spanTaskNotFound.setTag('error', true);
@@ -247,7 +253,7 @@ async function cancelSvc(req, res, ctx) {
   }
 }
 
-async function getAttachmentSvc(req, res, ctx) {
+async function getAttachmentSvc(req, res, ctx, logger) {
   const spanParent = ctx.startSpan('get_photo_worker');
   const spanParseUrl = ctx.startSpan('parse_url', {
     childOf: spanParent,
@@ -258,6 +264,7 @@ async function getAttachmentSvc(req, res, ctx) {
   const spanNotFound = ctx.startSpan('photo_not_found', {
     childOf: spanParent,
   });
+
   const uri = url.parse(req.url, true);
   const objectName = uri.pathname.replace('/attachment/', '');
   if (!objectName) {
@@ -268,6 +275,7 @@ async function getAttachmentSvc(req, res, ctx) {
     spanParent.finish();
     res.statusCode = 400;
     res.write('request tidak sesuai');
+    logger.error('request tidak sesuai');
     res.end();
   }
   try {
@@ -283,6 +291,7 @@ async function getAttachmentSvc(req, res, ctx) {
     objectRead.pipe(res);
   } catch (err) {
     if (err === ERROR_FILE_NOT_FOUND) {
+      logger.error(err);
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -294,6 +303,7 @@ async function getAttachmentSvc(req, res, ctx) {
     }
     res.statusCode = 500;
     res.write('gagal membaca file');
+    logger.error('gagal membaca file');
     res.end();
     spanGetAttachment.setTag('error', true);
     spanGetAttachment.finish();

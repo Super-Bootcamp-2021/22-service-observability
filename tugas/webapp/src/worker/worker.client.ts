@@ -6,7 +6,8 @@ export function register(data): Promise<any> {
   return client.post(`${SERVICE_BASEURL}/register`, data);
 }
 
-export function list(): Promise<any> {
+export function list(): Promise<any
+> {
   return client.get(`${SERVICE_BASEURL}/list`);
 }
 

@@ -1,7 +1,9 @@
 import { register, getList, remove } from './async-action';
 import { store$, errorAction, clearErrorAction } from './store';
 
+
 import './main.css';
+import '../sentry';
 
 const form = <HTMLFormElement>document.getElementById('form');
 const name = <HTMLInputElement>document.getElementById('name');

@@ -12,7 +12,7 @@ const { config } = require('../config');
 
 let server;
 
-async function run(context, callback) {
+async function run(context, logger, callback) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -31,39 +31,40 @@ async function run(context, callback) {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res, context);
+            return registerSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res, context);
+            return listSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res, context);
+            return infoSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res, context);
+            return removeSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
-            return getPhotoSvc(req, res, context);
+            return getPhotoSvc(req, res, context, logger);
           }
           respond(404);
       }
     } catch (err) {
+      logger.error('unkown server error', err);
       respond(500, 'unkown server error');
     }
   });
@@ -78,7 +79,7 @@ async function run(context, callback) {
   // run server
   const PORT = config.server.workerPort;
   server.listen(PORT, () => {
-    stdout.write(`🚀 worker service listening on port ${PORT}\n`);
+    logger.info(`🚀 worker service listening on port ${PORT}\n`);
   });
 }
 

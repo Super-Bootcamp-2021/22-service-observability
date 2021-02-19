@@ -12,7 +12,7 @@ const {
 } = require('./worker');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
 
-function registerSvc(req, res, ctx) {
+function registerSvc(req, res, ctx, logger) {
   const busboy = new Busboy({ headers: req.headers });
   const parentSpan = ctx.startSpan('get_register_worker');
   const spanErrSavePhoto = ctx.startSpan('save_photo_error', {
@@ -57,6 +57,7 @@ function registerSvc(req, res, ctx) {
           spanErrSavePhoto.finish();
         } catch (err) {
           spanErrSavePhoto.setTag('error', true);
+          logger.error(err);
           abort();
         }
         if (!req.aborted && finished) {
@@ -76,6 +77,7 @@ function registerSvc(req, res, ctx) {
               spanInternalServer.finish();
               spanInternalServer.setTag('error', true);
             }
+            logger.error(err);
             res.write(err);
           }
           parentSpan.finish();
@@ -109,7 +111,7 @@ function registerSvc(req, res, ctx) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res, ctx) {
+async function listSvc(req, res, ctx, logger) {
   const span = ctx.startSpan('get_worker_list');
   try {
     const workers = await list();
@@ -120,13 +122,14 @@ async function listSvc(req, res, ctx) {
   } catch (err) {
     span.setTag('error', true);
     span.finish();
+    logger.error(err);
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function infoSvc(req, res, ctx) {
+async function infoSvc(req, res, ctx, logger) {
   const parentSpan = ctx.startSpan('worker_info');
   const spanParseUrl = ctx.startSpan('parse_url_id', {
     childOf: parentSpan,
@@ -148,6 +151,7 @@ async function infoSvc(req, res, ctx) {
     parentSpan.finish();
 
     res.statusCode = 401;
+    logger.error('parameter id tidak ditemukan');
     res.write('parameter id tidak ditemukan');
     res.end();
     return;
@@ -179,13 +183,14 @@ async function infoSvc(req, res, ctx) {
     spanNotFound.finish();
     parentSpan.finish();
 
+    logger.error(err);
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function removeSvc(req, res, ctx) {
+async function removeSvc(req, res, ctx, logger) {
   const spanParent = ctx.startSpan('remove_worker');
   const spanParseUrl = ctx.startSpan('parse_url_id', {
     childOf: spanParent,
@@ -203,6 +208,7 @@ async function removeSvc(req, res, ctx) {
     spanParseUrl.setTag('error', true);
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
+    logger.error('parameter id tidak ditemukan');
     res.end();
     spanParseUrl.finish();
     spanRemoveWorker.finish();
@@ -231,6 +237,7 @@ async function removeSvc(req, res, ctx) {
 
       return;
     }
+    logger.error(err);
     res.statusCode = 500;
     res.end();
     spanRemoveWorker.setTag('error', true);
@@ -241,7 +248,7 @@ async function removeSvc(req, res, ctx) {
   }
 }
 
-async function getPhotoSvc(req, res, ctx) {
+async function getPhotoSvc(req, res, ctx, logger) {
   const spanParent = ctx.startSpan('get_photo_worker');
   const spanParseUrl = ctx.startSpan('parse_url', {
     childOf: spanParent,
@@ -263,6 +270,7 @@ async function getPhotoSvc(req, res, ctx) {
     spanParent.finish();
     res.statusCode = 400;
     res.write('request tidak sesuai');
+    logger.error('request tidak sesuai');
     res.end();
   }
   spanParseUrl.finish();
@@ -281,6 +289,7 @@ async function getPhotoSvc(req, res, ctx) {
     if (err === ERROR_FILE_NOT_FOUND) {
       res.statusCode = 404;
       res.write(err);
+      logger.error(err);
       res.end();
       spanNotFound.setTag('error', true);
       spanGetPhoto.finish();
@@ -290,6 +299,7 @@ async function getPhotoSvc(req, res, ctx) {
     }
     res.statusCode = 500;
     res.write('gagal membaca file');
+    logger.error('gagal membaca file');
     res.end();
     spanGetPhoto.setTag('error', true);
     spanGetPhoto.finish();
