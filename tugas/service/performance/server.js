@@ -8,7 +8,7 @@ const {config} = require('../config');
 
 let server;
 
-function run(callback, logger) {
+function run(contex, logger, callback) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -27,7 +27,7 @@ function run(callback, logger) {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res, logger);
+            return summarySvc(req, res, contex, logger);
           } else {
             respond(404);
           }
