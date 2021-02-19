@@ -1,6 +1,7 @@
 const Vue = require('vue').default;
 const { register, getList, remove } = require('../async-action');
 const { store$, errorAction, clearErrorAction } = require('../store');
+const { captureException } = require('@sentry/vue');
 
 const WorkerAdd = Vue.extend({
   render(createElement) {
@@ -120,8 +121,10 @@ const WorkerAdd = Vue.extend({
       ) {
         store$.dispatch(register(this.addWorker));
         event.target.reset();
+      } else {
+        captureException('form isian tidak lengkap!');
+        store$.dispatch(errorAction('form isian tidak lengkap!'));
       }
-      store$.dispatch(errorAction('form isian tidak lengkap!'));
       return;
     },
   },
