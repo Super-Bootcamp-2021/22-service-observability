@@ -5,3 +5,4 @@ file-storage
 *.log
 .tmrc
 .env
+.vercel
