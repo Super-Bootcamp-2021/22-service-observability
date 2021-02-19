@@ -12,7 +12,7 @@ const {
 } = require('./worker');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
 
-function registerSvc(req, res) {
+function registerSvc(req, res, logger) {
   const busboy = new Busboy({ headers: req.headers });
 
   const data = {
@@ -39,6 +39,7 @@ function registerSvc(req, res) {
         try {
           data.photo = await saveFile(file, mimetype);
         } catch (err) {
+          logger.error(err);
           abort();
         }
         if (!req.aborted && finished) {
@@ -52,6 +53,7 @@ function registerSvc(req, res) {
             } else {
               res.statusCode = 500;
             }
+            logger.error(err);
             res.write(err);
           }
           res.end();
@@ -84,24 +86,26 @@ function registerSvc(req, res) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res) {
+async function listSvc(req, res, logger) {
   try {
     const workers = await list();
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(workers));
     res.end();
   } catch (err) {
+    logger.error(err);
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function infoSvc(req, res) {
+async function infoSvc(req, res, logger) {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
+    logger.error('parameter id tidak ditemukan');
     res.write('parameter id tidak ditemukan');
     res.end();
     return;
@@ -118,18 +122,20 @@ async function infoSvc(req, res) {
       res.end();
       return;
     }
+    logger.error(err);
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function removeSvc(req, res) {
+async function removeSvc(req, res, logger) {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
+    logger.error('parameter id tidak ditemukan');
     res.end();
     return;
   }
@@ -146,18 +152,20 @@ async function removeSvc(req, res) {
       res.end();
       return;
     }
+    logger.error(err);
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function getPhotoSvc(req, res) {
+async function getPhotoSvc(req, res, logger) {
   const uri = url.parse(req.url, true);
   const objectName = uri.pathname.replace('/photo/', '');
   if (!objectName) {
     res.statusCode = 400;
     res.write('request tidak sesuai');
+    logger.error('request tidak sesuai');
     res.end();
   }
   try {
@@ -169,11 +177,13 @@ async function getPhotoSvc(req, res) {
     if (err === ERROR_FILE_NOT_FOUND) {
       res.statusCode = 404;
       res.write(err);
+      logger.error(err);
       res.end();
       return;
     }
     res.statusCode = 500;
     res.write('gagal membaca file');
+    logger.error('gagal membaca file');
     res.end();
     return;
   }

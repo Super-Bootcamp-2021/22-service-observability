@@ -12,7 +12,7 @@ const {
 } = require('./task');
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
 
-function addSvc(req, res) {
+function addSvc(req, res, logger) {
   const busboy = new Busboy({ headers: req.headers });
 
   const data = {
@@ -28,6 +28,7 @@ function addSvc(req, res) {
     if (!req.aborted) {
       res.statusCode = 500;
       res.write('internal server error');
+      logger.error('internal server error');
       res.end();
     }
   }
@@ -38,6 +39,7 @@ function addSvc(req, res) {
         try {
           data.attachment = await saveFile(file, mimetype);
         } catch (err) {
+          logger.error(err);
           abort();
         }
         if (!req.aborted && finished) {
@@ -51,6 +53,7 @@ function addSvc(req, res) {
             } else {
               res.statusCode = 500;
             }
+            logger.error(err);
             res.write(err);
           }
           res.end();
@@ -88,25 +91,27 @@ function addSvc(req, res) {
   req.pipe(busboy);
 }
 
-async function listSvc(req, res) {
+async function listSvc(req, res, logger) {
   try {
     const tasks = await list();
     res.setHeader('content-type', 'application/json');
     res.write(JSON.stringify(tasks));
     res.end();
   } catch (err) {
+    logger.error(err);
     res.statusCode = 500;
     res.end();
     return;
   }
 }
 
-async function doneSvc(req, res) {
+async function doneSvc(req, res, logger) {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
+    logger.error('parameter id tidak ditemukan');
     res.end();
     return;
   }
@@ -117,6 +122,7 @@ async function doneSvc(req, res) {
     res.write(JSON.stringify(task));
     res.end();
   } catch (err) {
+    logger.error(err);
     if (err === ERROR_TASK_NOT_FOUND) {
       res.statusCode = 404;
       res.write(err);
@@ -129,12 +135,13 @@ async function doneSvc(req, res) {
   }
 }
 
-async function cancelSvc(req, res) {
+async function cancelSvc(req, res, logger) {
   const uri = url.parse(req.url, true);
   const id = uri.query['id'];
   if (!id) {
     res.statusCode = 401;
     res.write('parameter id tidak ditemukan');
+    logger.error('parameter id tidak ditemukan');
     res.end();
     return;
   }
@@ -145,6 +152,7 @@ async function cancelSvc(req, res) {
     res.write(JSON.stringify(task));
     res.end();
   } catch (err) {
+    logger.error(err);
     if (err === ERROR_TASK_NOT_FOUND) {
       res.statusCode = 404;
       res.write(err);
@@ -157,12 +165,13 @@ async function cancelSvc(req, res) {
   }
 }
 
-async function getAttachmentSvc(req, res) {
+async function getAttachmentSvc(req, res, logger) {
   const uri = url.parse(req.url, true);
   const objectName = uri.pathname.replace('/attachment/', '');
   if (!objectName) {
     res.statusCode = 400;
     res.write('request tidak sesuai');
+    logger.error('request tidak sesuai');
     res.end();
   }
   try {
@@ -172,6 +181,7 @@ async function getAttachmentSvc(req, res) {
     objectRead.pipe(res);
   } catch (err) {
     if (err === ERROR_FILE_NOT_FOUND) {
+      logger.error(err);
       res.statusCode = 404;
       res.write(err);
       res.end();
@@ -179,6 +189,7 @@ async function getAttachmentSvc(req, res) {
     }
     res.statusCode = 500;
     res.write('gagal membaca file');
+    logger.error('gagal membaca file');
     res.end();
     return;
   }
