@@ -10,12 +10,11 @@ const {
 } = require('./worker.service');
 const { config } = require('../config');
 
-let ctx;
 
 let server;
 
 function run(ctx, callback) {
-  server = createServer((req, res, ctx) => {
+  server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
     if (aborted) {
