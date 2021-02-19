@@ -5,6 +5,9 @@ import { summary } from './components/performance';
 import { store$ } from './store';
 import { summary as summaryAction } from './async-action';
 import './main.css';
+import '../sentry';
+
+
 const buttonRefresh = Vue.extend({
   render(createElement: CreateElement): VNode {
     return createElement('button', {

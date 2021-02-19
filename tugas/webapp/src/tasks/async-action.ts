@@ -10,6 +10,7 @@ import {
 import * as workerSvc from './worker.client';
 import * as taskSvc from './task.client';
 import { Task } from './reducer';
+import {captureMessage} from '@sentry/vue'
 
 export const add = (data: Task) => async (dispatch) => {
   dispatch(loadingAction());
@@ -17,6 +18,7 @@ export const add = (data: Task) => async (dispatch) => {
     const task = await taskSvc.add(data);
     dispatch(addedAction(task));
   } catch (err) {
+    captureMessage(err)
     dispatch(errorAction(`gagal menambahkan ${data.job}`));
   }
 };
@@ -27,6 +29,7 @@ export const done = (id: number) => async (dispatch) => {
     await taskSvc.done(id);
     dispatch(doneAction(id));
   } catch (err) {
+    captureMessage(err);
     dispatch(errorAction('gagal menyelesaikan pekerjaan'));
   }
 };
@@ -47,6 +50,7 @@ export const getList = async (dispatch) => {
     const tasks = await taskSvc.list();
     dispatch(tasksLoadedAction(tasks));
   } catch (err) {
+    captureMessage(err);
     dispatch(errorAction('gagal memuat daftar pekerjaan'));
   }
 };
@@ -57,6 +61,7 @@ export const getWorkersList = async (dispatch) => {
     const workers = await workerSvc.list();
     dispatch(workersLoadedAction(workers));
   } catch (err) {
+    captureMessage(err);
     dispatch(errorAction('gagal membatalkan pekerjaan'));
   }
 };
