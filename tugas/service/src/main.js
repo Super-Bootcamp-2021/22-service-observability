@@ -73,7 +73,6 @@ async function main(command) {
         logger,
         tracer,
       };
-
       await init(ctx);
       tasksServer.run(ctx, onStop);
       break;
