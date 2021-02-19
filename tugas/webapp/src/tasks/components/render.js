@@ -17,7 +17,7 @@ const { store$, errorAction, clearErrorAction } = require('../store');
 new Vue({
   el: '#task',
   components: {
-		'navigation': NavComp,
+    navigation: NavComp,
     'state-page': StateComp,
     'task-form': TaskForm,
     'task-list': TaskList,
@@ -31,10 +31,10 @@ new Vue({
           load: this.state.loading,
         },
       }),
-			CreateElement('h4', 'Buat tugas baru'),
+      CreateElement('h4', 'Buat tugas baru'),
       CreateElement('task-form', { props: { workers: this.state.workers } }),
       CreateElement('h4', 'Daftar tugas'),
-			CreateElement('task-list', { props: { tasks: this.state.tasks } }),
+      CreateElement('task-list', { props: { tasks: this.state.tasks } }),
     ]);
   },
   data: {

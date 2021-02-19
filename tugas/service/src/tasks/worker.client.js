@@ -1,5 +1,5 @@
 const http = require('http');
-const {config} = require('../config');
+const { config } = require('../config');
 
 const WORKER_HOST = `http://${config.serverWorker.host}:${config.serverWorker.port}`;
 const ERROR_WORKER_NOT_FOUND = 'pekerja tidak ditemukan';

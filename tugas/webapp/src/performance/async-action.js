@@ -1,5 +1,6 @@
 const { loadingAction, errorAction, summaryLoadedAction } = require('./store');
 const perfSvc = require('./performance.client');
+const { captureException } = require('@sentry/vue');
 
 /**
  * @async
@@ -12,6 +13,7 @@ exports.summary = async (dispatch) => {
     const summary = await perfSvc.summary();
     dispatch(summaryLoadedAction(summary));
   } catch (err) {
+    captureException('gagal memuat informasi kinerja');
     dispatch(errorAction('gagal memuat informasi kinerja'));
   }
 };

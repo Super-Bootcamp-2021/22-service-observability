@@ -8,12 +8,12 @@ const workerServer = require('./worker/server');
 const tasksServer = require('./tasks/server');
 const performanceServer = require('./performance/server');
 const { config } = require('./config');
-const { createNodeLogger} = require('./lib/logger');
+const { createNodeLogger } = require('./lib/logger');
 const { createTracer } = require('./lib/tracer');
 
 async function init(ctx) {
   try {
-    ctx.logger.info('connect to database');;
+    ctx.logger.info('connect to database');
     await orm.connect([WorkerSchema, TaskSchema], config.database);
     ctx.logger.info('database connected');
   } catch (err) {
@@ -53,41 +53,41 @@ async function onStop() {
 
 async function main(command) {
   let logger;
-	let tracer;
-	let ctx;
-	switch (command) {
+  let tracer;
+  let ctx;
+  switch (command) {
     case 'performance':
-			logger = createNodeLogger('info', 'perf-svc');
-			tracer = createTracer('perf-svc');
-			ctx = {
-				logger,
-				tracer,
-			};
+      logger = createNodeLogger('info', 'perf-svc');
+      tracer = createTracer('perf-svc');
+      ctx = {
+        logger,
+        tracer,
+      };
       await init(ctx);
       performanceServer.run(ctx, onStop);
       break;
     case 'task':
       logger = createNodeLogger('info', 'task-svc');
-			tracer = createTracer('task-svc');
-			ctx = {
-				logger,
-				tracer,
-			};
+      tracer = createTracer('task-svc');
+      ctx = {
+        logger,
+        tracer,
+      };
       await init(ctx);
-			tasksServer.run(ctx, onStop);
+      tasksServer.run(ctx, onStop);
       break;
     case 'worker':
       logger = createNodeLogger('info', 'worker-svc');
-			tracer = createTracer('worker-svc');
-			ctx = {
-				logger,
-				tracer,
-			};
+      tracer = createTracer('worker-svc');
+      ctx = {
+        logger,
+        tracer,
+      };
       await init(ctx);
       workerServer.run(ctx, onStop);
       break;
     default:
-			logger = createNodeLogger('info', 'unknown');
+      logger = createNodeLogger('info', 'unknown');
       logger.info(`${command} tidak dikenali`);
       logger.info('command yang valid: task, worker, performance');
   }
