@@ -1,3 +1,4 @@
+import { captureMessage } from '@sentry/vue';
 import Vue, { CreateElement, VNode } from 'vue';
 import { add } from '../async-action';
 import { clearErrorAction, errorAction, store$ } from '../store';
@@ -105,6 +106,8 @@ const Form = Vue.extend({
           attachment: this.attachment,
         })
       );
+      captureMessage('Task added');
+
       this.job = '';
       this.attachment = null;
       this.assignee = null;

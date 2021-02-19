@@ -1,4 +1,5 @@
 import './main.css';
+import '../lib/sentry';
 import Vue, { CreateElement, VNode } from 'vue';
 import { getList } from './async-action';
 import { store$ } from './store';

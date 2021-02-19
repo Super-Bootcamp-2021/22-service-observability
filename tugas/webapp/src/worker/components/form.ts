@@ -1,6 +1,7 @@
 import Vue, { CreateElement, VNode } from 'vue';
 import { register } from '../async-action';
 import { clearErrorAction, errorAction, store$ } from '../store';
+import { captureMessage } from '@sentry/vue';
 
 const Form = Vue.extend({
   render(createElement: CreateElement): VNode {
@@ -140,6 +141,7 @@ const Form = Vue.extend({
           address: this.address,
         })
       );
+      captureMessage('Worker added');
 
       this.name = '';
       this.photo = null;

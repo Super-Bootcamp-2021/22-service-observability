@@ -4,6 +4,7 @@ import Navigation from './components/navigation';
 import { summary } from './async-action';
 import { store$ } from './store';
 
+import '../lib/sentry';
 import './main.css';
 
 // const workers = document.getElementById('workers');

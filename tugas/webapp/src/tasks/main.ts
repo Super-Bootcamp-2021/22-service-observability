@@ -6,6 +6,7 @@ import Navigation from './components/navigation';
 import TaskList from './components/task-list';
 import Form from './components/form';
 
+import '../lib/sentry';
 import './main.css';
 
 new Vue({
