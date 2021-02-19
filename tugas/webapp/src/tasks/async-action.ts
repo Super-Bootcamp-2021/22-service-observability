@@ -1,4 +1,4 @@
-const {
+import {
   loadingAction,
   errorAction,
   doneAction,
@@ -6,31 +6,35 @@ const {
   tasksLoadedAction,
   workersLoadedAction,
   addedAction,
-} = require('./store');
-const workerSvc = require('./worker.client');
-const taskSvc = require('./task.client');
+} from './store';
+import * as workerSvc from './worker.client';
+import * as taskSvc from './task.client';
+import { Task } from './reducer';
+import {captureMessage} from '@sentry/vue'
 
-exports.add = (data) => async (dispatch) => {
+export const add = (data: Task) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     const task = await taskSvc.add(data);
     dispatch(addedAction(task));
   } catch (err) {
+    captureMessage(err)
     dispatch(errorAction(`gagal menambahkan ${data.job}`));
   }
 };
 
-exports.done = (id) => async (dispatch) => {
+export const done = (id: number) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     await taskSvc.done(id);
     dispatch(doneAction(id));
   } catch (err) {
+    captureMessage(err);
     dispatch(errorAction('gagal menyelesaikan pekerjaan'));
   }
 };
 
-exports.cancel = (id) => async (dispatch) => {
+export const cancel = (id: number) => async (dispatch) => {
   dispatch(loadingAction());
   try {
     await taskSvc.cancel(id);
@@ -40,22 +44,24 @@ exports.cancel = (id) => async (dispatch) => {
   }
 };
 
-exports.getList = async (dispatch) => {
+export const getList = async (dispatch) => {
   dispatch(loadingAction());
   try {
     const tasks = await taskSvc.list();
     dispatch(tasksLoadedAction(tasks));
   } catch (err) {
+    captureMessage(err);
     dispatch(errorAction('gagal memuat daftar pekerjaan'));
   }
 };
 
-exports.getWorkersList = async (dispatch) => {
+export const getWorkersList = async (dispatch) => {
   dispatch(loadingAction());
   try {
     const workers = await workerSvc.list();
     dispatch(workersLoadedAction(workers));
   } catch (err) {
+    captureMessage(err);
     dispatch(errorAction('gagal membatalkan pekerjaan'));
   }
 };

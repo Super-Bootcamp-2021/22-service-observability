@@ -1,0 +1,130 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sanbercode
+    expose:
+      - 5432
+    ports:
+      - 5434:5432
+  minio:
+    image: bitnami/minio:latest
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    expose:
+      - 9000
+    ports:
+      - 9000:9000
+    volumes:
+      - 'minio_data:/data'
+  redis:
+    image: redis:alpine
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+  nats:
+    image: nats:latest
+    expose:
+      - 4222
+    ports:
+      - 4222:4222
+    hostname: nats-server
+  worker-svc:
+    image: ghcr.io/carbon-super-bootcamp/taskmanager-svc
+    depends_on:
+      - minio
+      - postgres
+      - nats
+    command:
+      - worker
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__type: postgres
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: sanbercode
+
+      tm_storage__endPoint: minio
+      tm_storage__accessKey: minioadmin
+      tm_storage__secretKey: minioadmin
+
+      tm_bus__url: nats://nats:4222
+      tm_bus__port: 4222
+
+      tm_kv__host: redis
+      tm_kv__port: 6379
+
+      tm_server__workerPort: 7001
+    expose:
+      - 7001
+    ports:
+      - 7001:7001
+  task-svc:
+    image: ghcr.io/carbon-super-bootcamp/taskmanager-svc
+    depends_on:
+      - minio
+      - postgres
+      - nats
+    command:
+      - task
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__type: postgres
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: sanbercode
+
+      tm_storage__endPoint: minio
+      tm_storage__accessKey: minioadmin
+      tm_storage__secretKey: minioadmin
+
+      tm_bus__url: nats://nats:4222
+      tm_bus__port: 4222
+
+      tm_kv__host: redis
+      tm_kv__port: 6379
+
+      tm_server__taskPort: 7002
+      tm_server__workerPort: 7001
+      tm_host__workerName: worker-svc
+    ports:
+      - 7002:7002
+  performance-svc:
+    image: ghcr.io/carbon-super-bootcamp/taskmanager-svc
+    depends_on:
+      - minio
+      - postgres
+      - nats
+    command:
+      - performance
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__type: postgres
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: sanbercode
+
+      tm_storage__endPoint: minio
+      tm_storage__accessKey: minioadmin
+      tm_storage__secretKey: minioadmin
+
+      tm_bus__url: nats://nats:4222
+      tm_bus__port: 4222
+
+      tm_kv__host: redis
+      tm_kv__port: 6379
+
+      tm_server__performancePort: 7003
+    ports:
+      - 7003:7003
+
+volumes:
+  minio_data:
+    driver: local
