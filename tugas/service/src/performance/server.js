@@ -26,7 +26,7 @@ function run(ctx, callback) {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res);
+            return summarySvc(req, res, ctx);
           } else {
             respond(404);
           }
