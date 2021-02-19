@@ -17,9 +17,9 @@ function run(ctx, callback) {
     // cors
     const aborted = cors(req, res);
     if (aborted) {
+      ctx.logger.error('process abort because cors issue');
       return;
     }
-
     function respond(statusCode, message) {
       res.statusCode = statusCode || 200;
       res.write(message || '');
@@ -31,35 +31,35 @@ function run(ctx, callback) {
       switch (uri.pathname) {
         case '/add':
           if (req.method === 'POST') {
-            return addSvc(req, res);
+            return addSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res);
+            return listSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/done':
           if (req.method === 'PUT') {
-            return doneSvc(req, res);
+            return doneSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         case '/cancel':
           if (req.method === 'PUT') {
-            return cancelSvc(req, res);
+            return cancelSvc(req, res, ctx);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/attachment\/\w+/.test(uri.pathname)) {
-            return getAttachmentSvc(req, res);
+            return getAttachmentSvc(req, res, ctx);
           }
           respond(404);
       }
@@ -91,7 +91,6 @@ function cors(req, res) {
     'OPTIONS, GET, POST, PUT, DELETE'
   );
   res.setHeader('Access-Control-Allow-Headers', '*');
-
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
