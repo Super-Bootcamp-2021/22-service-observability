@@ -12,7 +12,7 @@ const {config} = require('../config');
 
 let server;
 
-function run(callback, logger) {
+function run(contex, logger, callback) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -31,35 +31,35 @@ function run(callback, logger) {
       switch (uri.pathname) {
         case '/add':
           if (req.method === 'POST') {
-            return addSvc(req, res, logger);
+            return addSvc(req, res, contex, logger);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res, logger);
+            return listSvc(req, res, contex, logger);
           } else {
             respond(404);
           }
           break;
         case '/done':
           if (req.method === 'PUT') {
-            return doneSvc(req, res, logger);
+            return doneSvc(req, res, contex, logger);
           } else {
             respond(404);
           }
           break;
         case '/cancel':
           if (req.method === 'PUT') {
-            return cancelSvc(req, res, logger);
+            return cancelSvc(req, res, contex, logger);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/attachment\/\w+/.test(uri.pathname)) {
-            return getAttachmentSvc(req, res, logger);
+            return getAttachmentSvc(req, res, contex, logger);
           }
           respond(404);
       }

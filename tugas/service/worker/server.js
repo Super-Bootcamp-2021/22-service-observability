@@ -12,7 +12,7 @@ const { config } = require('../config');
 
 let server;
 
-function run(callback, logger) {
+async function run(context, logger, callback) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -31,35 +31,35 @@ function run(callback, logger) {
       switch (uri.pathname) {
         case '/register':
           if (req.method === 'POST') {
-            return registerSvc(req, res, logger);
+            return registerSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         case '/list':
           if (req.method === 'GET') {
-            return listSvc(req, res, logger);
+            return listSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         case '/info':
           if (req.method === 'GET') {
-            return infoSvc(req, res, logger);
+            return infoSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         case '/remove':
           if (req.method === 'DELETE') {
-            return removeSvc(req, res, logger);
+            return removeSvc(req, res, context, logger);
           } else {
             respond(404);
           }
           break;
         default:
           if (/^\/photo\/\w+/.test(uri.pathname)) {
-            return getPhotoSvc(req, res, logger);
+            return getPhotoSvc(req, res, context, logger);
           }
           respond(404);
       }

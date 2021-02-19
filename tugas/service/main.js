@@ -7,8 +7,11 @@ const { WorkerSchema } = require('./worker/worker.model');
 const workerServer = require('./worker/server');
 const tasksServer = require('./tasks/server');
 const performanceServer = require('./performance/server');
-const { config } = require('./config');
+const {config} = require('./config');
+const tracer = require('./lib/tracer');
 const { createNodeLogger } = require('./lib/logger');
+
+let ctx;
 
 async function init(logger) {
   try {
@@ -45,6 +48,16 @@ async function init(logger) {
   }
 }
 
+async function tracerInit(config) {
+  try {
+    console.log('connect to tracer ...');
+    return await tracer.connect(config);
+  } catch (err) {
+    console.error('tracer connection failed', err);
+    process.exit(1);
+  }
+}
+
 async function onStop() {
   bus.close();
   kv.close();
@@ -57,17 +70,20 @@ async function main(command) {
     case 'performance':
       logger = createNodeLogger('info', 'performance-service');
       await init(logger);
-      performanceServer.run(onStop, logger);
+      ctx = await tracerInit(config.tracer.performance);
+      performanceServer.run(ctx, logger, onStop);
       break;
     case 'task':
       logger = createNodeLogger('info', 'task-service');
       await init(logger);
-      tasksServer.run(onStop, logger);
+      ctx = await tracerInit(config.tracer.task);
+      tasksServer.run(ctx, logger, onStop);
       break;
     case 'worker':
       logger = createNodeLogger('info', 'worker-service');
       await init(logger);
-      workerServer.run(onStop, logger);
+      ctx = await tracerInit(config.tracer.worker);
+      await workerServer.run(ctx, logger, onStop);
       break;
     default:
       command =
