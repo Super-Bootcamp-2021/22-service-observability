@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "./www",
+    "sourceMap": true,
+    "allowJs": true,
+    "target": "ES6",
+    "moduleResolution": "Node"
+  },
+  "include": ["./webapp/src/**/*"]
+}

@@ -1,0 +1,125 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task_manager
+    expose:
+      - 5432
+    ports:
+      - 5434:5432
+  minio:
+    image: minio/minio
+    command:
+      - server
+      - /storage
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    expose:
+      - 9000
+    ports:
+      - 9001:9000
+  nats:
+    image: nats:2
+    expose:
+      - 4222
+    ports:
+      - 4224:4222
+  redis:
+    image: redis:6
+    expose:
+      - 6379
+    ports:
+      - 6380:6379
+  worker-service:
+    image: ghcr.io/super-bootcamp-2021-fermium/task-manager:latest
+    command:
+      - worker
+    depends_on:
+      - postgres
+      - nats
+      - minio
+      - redis
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: task_manager
+      tm_server__worker: 80
+      tm_server__task: 81
+      tm_server__performance: 82
+      tm_minio__endPoint: minio
+      tm_minio__accessKey: minioadmin
+      tm_minio__secretKey: minioadmin
+      tm_bus__host: nats
+      tm_bus__port: 4222
+      tm_kv__host: redis
+      tm_kv__port: 6379
+    expose: 
+      - 80
+    ports:
+      - 7001:80
+  task-service:
+    image: ghcr.io/super-bootcamp-2021-fermium/task-manager:latest
+    command:
+      - task
+    depends_on:
+      - postgres
+      - nats
+      - minio
+      - redis
+      - worker-service
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: task_manager
+      tm_server__worker: 80
+      tm_server__workerHost: worker-service
+      tm_server__task: 81
+      tm_server__performance: 82
+      tm_minio__endPoint: minio
+      tm_minio__accessKey: minioadmin
+      tm_minio__secretKey: minioadmin
+      tm_bus__host: nats
+      tm_bus__port: 4222
+      tm_kv__host: redis
+      tm_kv__port: 6379
+    expose: 
+      - 81
+    ports:
+      - 7002:81
+  performance-service:
+    image: ghcr.io/super-bootcamp-2021-fermium/task-manager:latest
+    command:
+      - performance
+    depends_on:
+      - postgres
+      - nats
+      - minio
+      - redis
+    environment:
+      tm_database__host: postgres
+      tm_database__port: 5432
+      tm_database__username: postgres
+      tm_database__password: postgres
+      tm_database__database: task_manager
+      tm_server__worker: 80
+      tm_server__task: 81
+      tm_server__performance: 82
+      tm_minio__endPoint: minio
+      tm_minio__accessKey: minioadmin
+      tm_minio__secretKey: minioadmin
+      tm_bus__host: nats
+      tm_bus__port: 4222
+      tm_kv__host: redis
+      tm_kv__port: 6379
+    expose: 
+      - 82
+    ports:
+      - 7003:82
