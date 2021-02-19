@@ -8,7 +8,7 @@ const {config} = require('../config');
 
 let server;
 
-function run(callback) {
+function run(callback, logger) {
   server = createServer((req, res) => {
     // cors
     const aborted = cors(req, res);
@@ -27,7 +27,7 @@ function run(callback) {
       switch (uri.pathname) {
         case '/summary':
           if (req.method === 'GET') {
-            return summarySvc(req, res);
+            return summarySvc(req, res, logger);
           } else {
             respond(404);
           }
@@ -36,6 +36,7 @@ function run(callback) {
           respond(404);
       }
     } catch (err) {
+      logger.error(err);
       respond(500, 'unkown server error');
     }
   });
@@ -54,7 +55,8 @@ function run(callback) {
   // run server
   const PORT = config.server.performancePort;
   server.listen(PORT, () => {
-    stdout.write(`🚀 performance service listening on port ${PORT}\n`);
+    logger.info(`🚀 performance service listening on port ${PORT}\n`);
+    // stdout.write(`🚀 performance service listening on port ${PORT}\n`);
   });
 }
 
