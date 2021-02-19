@@ -13,16 +13,15 @@ const {
 const { saveFile, readFile, ERROR_FILE_NOT_FOUND } = require('../lib/storage');
 
 const { createTracer } = require('../lib/tracer');
-const { throwError } = require('rxjs');
 const tracer = createTracer('worker.service');
 
 /**
  * register profile pekerja baru
- * @param {ClientRequest} req
+ * @param {IncomingMessage} req
  * @param {ServerResponse} res
  */
 function registerSvc(req, res) {
-  const parentSpan = tracer.startSpan('worker_register');
+  const parentSpan = tracer.startSpan('POST /register');
 
   const busboy = new Busboy({ headers: req.headers });
 
@@ -132,12 +131,12 @@ function registerSvc(req, res) {
 }
 
 /**
- * menampilkan daftar pekrja
- * @param {ClientRequest} req
+ * menampilkan daftar pekerja
+ * @param {IncomingMessage} req
  * @param {ServerResponse} res
  */
 async function listSvc(req, res) {
-  const parentSpan = tracer.startSpan('worker_list');
+  const parentSpan = tracer.startSpan('GET /list');
   const span1 = tracer.startSpan('get worker list', {
     childOf: parentSpan,
   });
@@ -150,7 +149,7 @@ async function listSvc(req, res) {
     span1.setTag('statusCode', res.statusCode);
     span1.log({
       event: 'get worker list',
-      message: 'response ok',
+      message: 'success',
     });
     span1.finish();
   } catch (err) {
@@ -170,11 +169,11 @@ async function listSvc(req, res) {
 
 /**
  * menampilkan informasi dari pekerja
- * @param {ClientRequest} req
+ * @param {IncomingMessage} req
  * @param {ServerResponse} res
  */
 async function infoSvc(req, res) {
-  const parentSpan = tracer.startSpan('worker_info');
+  const parentSpan = tracer.startSpan('GET /info?id={id}');
   const span1 = tracer.startSpan('parsing query parameter', {
     childOf: parentSpan,
   });
@@ -205,7 +204,7 @@ async function infoSvc(req, res) {
     span2.setTag('statusCode', res.statusCode);
     span2.log({
       event: 'get worker info by id',
-      message: 'response ok',
+      message: 'success',
     });
     span2.finish();
   } catch (err) {
@@ -238,11 +237,11 @@ async function infoSvc(req, res) {
 
 /**
  * menghapus data pekerja
- * @param {ClientRequest} req
+ * @param {IncomingMessage} req
  * @param {ServerResponse} res
  */
 async function removeSvc(req, res) {
-  const parentSpan = tracer.startSpan('worker_remove');
+  const parentSpan = tracer.startSpan('DELETE /remove?id={id}');
   const span1 = tracer.startSpan('parsing query parameter', {
     childOf: parentSpan,
   });
@@ -274,7 +273,7 @@ async function removeSvc(req, res) {
     span2.setTag('statusCode', res.statusCode);
     span2.log({
       event: 'remove worker data by id',
-      message: 'response ok',
+      message: 'success',
     });
     span2.finish();
   } catch (err) {
@@ -307,7 +306,7 @@ async function removeSvc(req, res) {
 
 /**
  * menampilkan foto profil pekerja
- * @param {ClientRequest} req
+ * @param {IncomingMessage} req
  * @param {ServerResponse} res
  */
 async function getPhotoSvc(req, res) {
@@ -342,7 +341,7 @@ async function getPhotoSvc(req, res) {
     span2.setTag('statusCode', res.statusCode);
     span2.log({
       event: 'get worker photo',
-      message: 'response ok',
+      message: 'success',
     });
     span2.finish();
   } catch (err) {
@@ -365,8 +364,8 @@ async function getPhotoSvc(req, res) {
     span2.setTag('error', true);
     span2.setTag('statusCode', res.statusCode);
     span2.log({
-      event: 'error get worker photo',
-      message: 'gagal membaca file',
+      event: 'gagal membaca file',
+      message: err,
     });
     span2.finish();
     return;
